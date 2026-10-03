@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ambient Light</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#050507;--panel:rgba(18,18,24,.72);--line:rgba(255,255,255,.10);--text:#f1f0f6;--mute:#9795a8;--acc:#f2f0ff;--r:0px;--ar:1.7778;--fe:0px;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;min-height:100vh;overflow-x:hidden;transition:background .6s}
+.stage{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(36px,7vh,72px);padding:clamp(24px,5vh,56px) 4vw;overflow:hidden}
+.wrap{position:relative;width:min(88vw,1040px,calc(66vh*var(--ar)));aspect-ratio:var(--ar)}
+.layers{position:absolute;inset:0;pointer-events:none}
+.layer{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;background:#000;will-change:transform,filter}
+.layer iframe,.layer canvas{width:100%;height:100%;border:0;display:block;pointer-events:none}
+.player{position:relative;z-index:1;width:100%;height:100%;overflow:hidden;background:transparent;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%),linear-gradient(to bottom,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%),linear-gradient(to bottom,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
+.player video,.player iframe{width:100%;height:100%;border:0;display:none;background:#000;object-fit:contain}
+.player.v video,.player.y iframe{display:block}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:1rem;text-align:center;padding:0 24px;line-height:1.8}
+.player.v .empty,.player.y .empty{display:none}
+.wrap.over .player{outline:2px dashed var(--acc);outline-offset:-8px}
+.panel{position:relative;z-index:3;width:min(92vw,1040px);display:grid;gap:16px;padding:18px 20px;border-radius:20px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:opacity .5s,transform .5s}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.url{flex:1 1 280px;min-width:0;font:inherit;color:var(--text);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:.92rem}
+.url::placeholder{color:var(--mute)}
+button,.btn{font:inherit;color:var(--text);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:999px;padding:9px 18px;cursor:pointer;font-size:.92rem;transition:background .2s,transform .15s}
+button:hover,.btn:hover{background:rgba(255,255,255,.13)}
+button:active,.btn:active{transform:scale(.97)}
+button.on{background:var(--acc);color:#111;border-color:transparent;font-weight:700}
+button:focus-visible,.btn:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 26px}
+label.s{display:grid;gap:6px;font-size:.84rem;color:var(--mute)}
+label.s b{display:flex;justify-content:space-between;font-weight:400}
+label.s output{color:var(--text);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:rgba(255,255,255,.16);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--acc);border:0}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--acc);border:0}
+.note{font-size:.8rem;color:var(--mute);line-height:1.7;margin:0}
+.msg{font-size:.84rem;color:#ffb4a8;min-height:1.2em}
+.sp{flex:1}
+body.cinema{background:#000}
+body.cinema .panel{opacity:0;pointer-events:none;transform:translateY(12px)}
+body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointer-events:auto;transform:none}
+.stage:fullscreen{background:#000;justify-content:center;padding:0;min-height:100%;height:100%}
+.stage:fullscreen .panel{display:none}
+.stage:fullscreen .wrap{width:min(100vw,calc(100vh*var(--ar)))}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+  <div class="wrap" id="wrap">
+    <div class="layers" id="layers"></div>
+    <div class="player" id="player">
+      <video id="v" playsinline loop></video>
+      <div class="empty">YouTubeのURLを貼るか、動画ファイルをドロップ</div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="row">
+      <input class="url" id="url" type="text" inputmode="url" placeholder="YouTubeのURLを貼り付け" autocomplete="off">
+      <button id="bLoad">読み込む</button>
+    </div>
+    <div class="row">
+      <label class="btn" id="bFile" tabindex="0">動画ファイル<input id="file" type="file" accept="video/*" hidden></label>
+      <button id="bCap">タブ / 画面を取り込む</button>
+      <span class="sp"></span>
+      <button id="bCinema">シネマモード</button>
+      <button id="bFull">全画面</button>
+    </div>
+    <div class="sliders">
+      <label class="s"><b>光の広がり<output id="oSp"></output></b><input id="rSp" type="range" min=".4" max="2.2" step=".01" value=".9"></label>
+      <label class="s"><b>ぼかし<output id="oBl"></output></b><input id="rBl" type="range" min="10" max="140" step="1" value="18"></label>
+      <label class="s"><b>明るさ<output id="oIn"></output></b><input id="rIn" type="range" min="0" max="1" step=".01" value="1"></label>
+      <label class="s"><b>鮮やかさ<output id="oSa"></output></b><input id="rSa" type="range" min="1" max="3" step=".05" value="1"></label>
+      <label class="s"><b>境界のなじませ<output id="oFe"></output></b><input id="rFe" type="range" min="0" max="60" step="1" value="0"></label>
+      <label class="s"><b>重ねる数<output id="oN"></output></b><input id="rN" type="range" min="3" max="40" step="1" value="16"></label>
+    </div>
+    <div class="msg" id="msg"></div>
+  </section>
+</main>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const v=$('#v'), player=$('#player'), layersEl=$('#layers'), msg=$('#msg');
+let P={sp:.9,bl:18,inn:1,sa:1,fe:0,n:16}, mode='', curId='', frames=[], canvases=[], objUrl=null, capStream=null, ytTimer=0, ytCheck=0;
+
+/* ---------- params ---------- */
+function apply(){
+  const n=layersEl.children.length;
+  [...layersEl.children].forEach((el,i)=>{
+    const t=n>1?1-i/(n-1):0;
+    el.style.transform=`scale(${1+(.006+t*.5)*P.sp})`;
+    el.style.filter=`blur(${((.28+.72*Math.pow(t,.85))*P.bl).toFixed(1)}px) saturate(${1+(P.sa-1)*t})`;
+    el.style.opacity=Math.min(1,P.inn*(1-.4*t));
+  });
+  document.documentElement.style.setProperty('--fe',P.fe+'px');
+}
+[['rSp','oSp','sp',x=>x.toFixed(2)+'x'],['rBl','oBl','bl',x=>x+'px'],['rIn','oIn','inn',x=>Math.round(x*100)+'%'],['rSa','oSa','sa',x=>x.toFixed(2)],['rFe','oFe','fe',x=>x+'px']]
+.forEach(([r,o,k,f])=>{const el=$('#'+r),out=$('#'+o);const u=()=>{P[k]=+el.value;out.textContent=f(P[k]);apply()};el.addEventListener('input',u);u()});
+
+/* ---------- reset / layers ---------- */
+function reset(){
+  clearInterval(ytTimer);clearTimeout(ytCheck);
+  frames=[];canvases=[];layersEl.textContent='';msg.textContent='';
+  const old=player.querySelector('iframe');if(old)old.remove();
+  if(capStream){capStream.getTracks().forEach(t=>t.stop());capStream=null}
+  if(objUrl){URL.revokeObjectURL(objUrl);objUrl=null}
+  v.pause();v.removeAttribute('src');v.srcObject=null;v.controls=false;
+  player.className='player';mode='';$('#wrap').style.setProperty('--ar',1.7778);
+}
+function buildLayers(make){
+  for(let i=0;i<P.n;i++){const d=document.createElement('div');d.className='layer';d.appendChild(make());layersEl.appendChild(d)}
+  apply();
+}
+
+/* ---------- YouTube ---------- */
+function ytId(s){
+  s=s.trim();
+  if(/^[\w-]{11}$/.test(s))return s;
+  const m=s.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([\w-]{11})/);
+  return m?m[1]:null;
+}
+const ytst=new Map();
+const cmd=(w,f,a=[])=>{try{w.postMessage(JSON.stringify({event:'command',func:f,args:a}),'*')}catch(e){}};
+const listen=w=>{try{w.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*')}catch(e){}};
+addEventListener('message',e=>{
+  if(!String(e.origin).includes('youtube'))return;
+  let d;try{d=typeof e.data==='string'?JSON.parse(e.data):e.data}catch(_){return}
+  if(!d)return;
+  const o=ytst.get(e.source)||{t:0,st:-1,stamp:0};
+  if((d.event==='infoDelivery'||d.event==='initialDelivery')&&d.info){
+    if(d.info.currentTime!=null){o.t=d.info.currentTime;o.stamp=performance.now()}
+    if(d.info.playerState!=null)o.st=d.info.playerState;
+  }else if(d.event==='onStateChange'){o.st=d.info}
+  o.ready=true;ytst.set(e.source,o);
+});
+const est=o=>o.t+(o.st===1?(performance.now()-o.stamp)/1000:0);
+
+function loadYT(id){
+  reset();mode='yt';curId=id;ytst.clear();
+  const base=`https://www.youtube.com/embed/${id}?enablejsapi=1&playsinline=1&rel=0&iv_load_policy=3`;
+  const main=document.createElement('iframe');
+  main.referrerPolicy='strict-origin-when-cross-origin';
+  main.src=base;main.allow='accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';main.allowFullscreen=true;
+  player.insertBefore(main,v);player.classList.add('y');
+  buildYT();
+  main.addEventListener('load',()=>listen(main.contentWindow));
+  ytTimer=setInterval(ytSync,300);
+  ytCheck=setTimeout(()=>{if(![...ytst.values()].length)msg.textContent='YouTubeを読み込めませんでした。URL、または埋め込みが許可されているか確認してください。'},6000);
+}
+function buildYT(){
+  const base=`https://www.youtube.com/embed/${curId}?enablejsapi=1&playsinline=1&rel=0&iv_load_policy=3`;
+  buildLayers(()=>{
+    const f=document.createElement('iframe');
+    f.referrerPolicy='strict-origin-when-cross-origin';
+    f.src=base+'&controls=0&disablekb=1&mute=1&modestbranding=1';f.tabIndex=-1;f.setAttribute('aria-hidden','true');
+    f.addEventListener('load',()=>listen(f.contentWindow));
+    return f;
+  });
+  frames=[player.querySelector('iframe'),...layersEl.querySelectorAll('iframe')];
+}
+function rebuild(){
+  if(!mode)return;
+  layersEl.textContent='';canvases=[];
+  if(mode==='yt')buildYT();else{videoLayers();paint()}
+}
+const rN=$('#rN'),oN=$('#oN');oN.textContent=rN.value;
+rN.addEventListener('input',()=>oN.textContent=rN.value);
+rN.addEventListener('change',()=>{P.n=+rN.value;rebuild()});
+function ytSync(){
+  frames.forEach(f=>{const o=ytst.get(f.contentWindow);if(!o||!o.ready)listen(f.contentWindow)});
+  const m=ytst.get(frames[0].contentWindow);if(!m)return;
+  frames.slice(1).forEach(f=>{
+    const w=f.contentWindow,o=ytst.get(w);if(!o||!o.ready)return;
+    if(!o.muted){cmd(w,'mute');o.muted=true}
+    if(m.st===1&&o.st!==1)cmd(w,'playVideo');
+    else if(m.st!==1&&m.st!==3&&o.st===1)cmd(w,'pauseVideo');
+    if(Math.abs(est(o)-est(m))>.35&&(m.st===1||m.st===2))cmd(w,'seekTo',[est(m),true]);
+  });
+}
+const go=()=>{const id=ytId($('#url').value);if(!id){msg.textContent='YouTubeのURLを認識できませんでした。';return}loadYT(id)};
+$('#bLoad').onclick=go;
+$('#url').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+
+/* ---------- file / capture (canvas layers) ---------- */
+function videoLayers(){
+  buildLayers(()=>{const c=document.createElement('canvas');c.width=480;c.height=270;canvases.push(c);return c});
+  player.classList.add('v');
+}
+function openFile(f){
+  if(!f)return;reset();mode='v';
+  objUrl=URL.createObjectURL(f);v.src=objUrl;v.controls=true;v.loop=true;
+  videoLayers();v.play().catch(()=>{});
+}
+$('#file').addEventListener('change',e=>openFile(e.target.files[0]));
+$('#bFile').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#file').click()}});
+$('#bCap').onclick=async()=>{
+  try{
+    const s=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:false});
+    reset();mode='v';capStream=s;v.muted=true;v.srcObject=s;videoLayers();v.play().catch(()=>{});
+    s.getVideoTracks()[0].addEventListener('ended',reset);
+  }catch(e){msg.textContent='画面の取り込みを開始できませんでした。このページを別タブで直接開いて試してください。'}
+};
+const wrap=$('#wrap');
+addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('over')});
+addEventListener('dragleave',e=>{if(e.target===document.documentElement)wrap.classList.remove('over')});
+addEventListener('drop',e=>{e.preventDefault();wrap.classList.remove('over');const f=e.dataTransfer&&e.dataTransfer.files[0];if(f&&f.type.startsWith('video/'))openFile(f)});
+
+function fitAr(){if(mode==='v'&&v.videoWidth)$('#wrap').style.setProperty('--ar',(v.videoWidth/v.videoHeight).toFixed(4))}
+v.addEventListener('loadedmetadata',fitAr);v.addEventListener('resize',fitAr);
+
+/* ---------- modes ---------- */
+$('#bCinema').onclick=e=>e.currentTarget.classList.toggle('on',document.body.classList.toggle('cinema'));
+$('#bFull').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('#stage').requestFullscreen()}catch(e){}};
+
+/* ---------- canvas copy loop ---------- */
+function paint(){
+  if(mode==='v'&&v.readyState>=2&&v.videoWidth)canvases.forEach(c=>{try{c.getContext('2d').drawImage(v,0,0,c.width,c.height)}catch(e){}});
+}
+if('requestVideoFrameCallback' in v){const loop=()=>{paint();v.requestVideoFrameCallback(loop)};v.requestVideoFrameCallback(loop)}
+else{const tick=()=>{paint();requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+['seeked','pause','loadeddata'].forEach(n=>v.addEventListener(n,paint));
+})();
+</script>
+</body>
+</html>
