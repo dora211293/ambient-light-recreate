@@ -1,5 +1,5 @@
-const CACHE='ambient-light-recreate-v4';
-const SHELL=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
+const CACHE='ambient-light-recreate-v5';
+const SHELL=['./','./index.html','./pwa.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>Promise.allSettled(SHELL.map(u=>c.add(u)))).then(()=>self.skipWaiting()));
 });
