@@ -96,11 +96,87 @@ body.mob .pl .gear{top:10px;right:10px}
 .pl .ripple.l{left:8%}.pl .ripple.r{right:8%}
 .pl .ripple.go{animation:rpl .65s}
 @keyframes rpl{0%,70%{opacity:1}100%{opacity:0}}
+
+/* ---- watch page ---- */
+.wh,#winfo,#wside{display:none}
+#wcol,#wprim{display:contents}
+body.player{background:#0f0f0f}
+body.player .stage:not(:fullscreen){display:block;padding:0;min-height:100vh;color:#f1f1f1}
+body.player .stage:not(:fullscreen) #winfo,body.player .stage:not(:fullscreen) #wside{display:block;position:relative;z-index:2}
+body.player .stage:not(:fullscreen) #wprim{display:block}
+body.player .stage:not(:fullscreen) .wrap{margin:0}
+body.pc .stage:not(:fullscreen) .wh{display:flex}
+body.pc .stage:not(:fullscreen) #wcol{display:grid;grid-template-columns:minmax(0,1fr) 402px;gap:24px;padding:80px 24px 48px;max-width:1760px;min-width:1080px;margin:0 auto}
+body.pc .stage:not(:fullscreen) .wrap{width:min(100%,calc((100vh - 190px)*var(--ar)))}
+body.mob .stage:not(:fullscreen) #wcol{display:block}
+body.mob .stage:not(:fullscreen) .wrap{width:100%}
+.wh{position:fixed;top:0;left:0;right:0;height:56px;z-index:30;align-items:center;gap:14px;padding:0 16px;background:rgba(15,15,15,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.wh .logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:18px;letter-spacing:-.4px}
+.wh .logo svg{width:30px;height:22px}
+.wh .srch{flex:1;max-width:640px;margin:0 auto;display:flex}
+.wh .srch input{flex:1;min-width:0;height:40px;background:#121212;border:1px solid #303030;border-radius:999px 0 0 999px;color:#fff;padding:0 16px;font:inherit}
+.wh .srch button{width:64px;height:40px;background:rgba(255,255,255,.08);border:1px solid #303030;border-left:0;border-radius:0 999px 999px 0}
+.wh .sp{flex:0}
+.wh button,#winfo button,#wside button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.ib{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
+.ib:hover{background:rgba(255,255,255,.1)}
+.ib svg,.pill svg{width:22px;height:22px;fill:currentColor}
+#winfo h1{font-size:20px;line-height:28px;font-weight:700;margin:14px 0 8px}
+body.mob #winfo h1{font-size:17px;line-height:23px;margin:12px 0 6px}
+#winfo,#wside{padding:0}
+body.mob #winfo{padding:0 12px}
+.av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;color:#fff}
+.av.s{width:28px;height:28px;font-size:13px}
+.mut{color:#aaa;font-size:13px}
+.pill{height:36px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.1);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pill:hover{background:rgba(255,255,255,.18)}
+.pill.w,.pill.on{background:#f1f1f1;color:#0f0f0f}
+.seg{display:flex;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;flex:none}
+.seg .pill{background:none;border-radius:0}
+.seg .pill+.pill{border-left:1px solid rgba(255,255,255,.2)}
+.seg .pill.on{background:rgba(255,255,255,.28);color:#fff}
+.dn svg{transform:scaleY(-1)}
+.dots3 svg{transform:rotate(90deg)}
+.row2{display:flex;align-items:center;gap:12px}
+.card{background:rgba(255,255,255,.1);border-radius:12px;padding:12px;margin:12px 0;font-size:14px;line-height:20px}
+.th{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;flex:none}
+.th b{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.8);border-radius:4px;padding:1px 5px;font-size:12px}
+.p-ch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 12px}
+.p-ch .nm{display:flex;flex-direction:column;line-height:20px;margin-right:6px}
+.p-ch .nm b{font-size:16px;display:flex;align-items:center;gap:4px}
+.p-ch .nm svg{width:14px;height:14px;fill:#aaa}
+.p-ch .grow{flex:1}
+.cm{display:flex;gap:14px;margin:18px 0;font-size:14px;line-height:20px}
+.cm .u{font-weight:600;font-size:13px}
+.cm p{margin:2px 0 0}
+.add{display:flex;gap:14px;align-items:center;margin:20px 0}
+.add div.l{flex:1;border-bottom:1px solid #444;padding:6px 0;color:#aaa;font-size:14px}
+.chips{display:flex;gap:8px;margin:0 0 12px;overflow:hidden}
+.chips .pill{height:32px;font-size:14px;font-weight:500}
+.rh{display:flex;gap:8px;margin-bottom:10px}
+.rh .th{width:168px;border-radius:8px}
+.rh .tx{flex:1;min-width:0}
+.rh h4,.rv h4{font-size:14px;line-height:20px;margin:0 0 4px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rv{margin:0 0 20px}
+.rv .th{border-radius:0}
+.rv .info{display:flex;gap:12px;padding:12px 12px 0}
+.rv .info .tx{flex:1;min-width:0}
+.m-meta{display:flex;align-items:center;gap:10px;color:#aaa;font-size:13px;white-space:nowrap;overflow:hidden}
+.m-meta .ch{color:#f1f1f1;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.m-meta svg{width:13px;height:13px;fill:#aaa}
+.m-act{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0}
+.m-act .pill.ch{flex:0 1 auto;max-width:40%;overflow:hidden;text-overflow:ellipsis}
+.m-act .ib{width:44px}
+.m-act .ib.on{color:#3ea6ff}
+.cdots{display:flex;gap:5px}.cdots i{width:7px;height:7px;border-radius:50%;background:#555}.cdots i:first-child{width:22px;border-radius:4px;background:#f1f1f1}
+body.mob #wside{margin-top:14px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <main class="stage" id="stage">
+  <header class="wh" id="wh"></header>
+  <div class="wcol" id="wcol"><div class="wprim" id="wprim">
   <div class="wrap" id="wrap">
     <div class="layers" id="layers"></div>
     <div class="player" id="player">
@@ -123,6 +199,8 @@ body.mob .pl .gear{top:10px;right:10px}
       </div>
     </div>
   </div>
+  <div id="winfo"></div></div>
+  <aside class="wside" id="wside"></aside></div>
 
   <section class="panel">
     <div class="row">
@@ -275,7 +353,7 @@ function ytSync(){
     if(Math.abs(est(o)-est(m))>.35&&(m.st===1||m.st===2))cmd(w,'seekTo',[est(m),true]);
   });
 }
-const go=()=>{const id=ytId($('#url').value);if(!id){msg.textContent='YouTubeのURLを認識できませんでした。';return}ytOpts={controls:document.body.classList.contains('player')?0:1,start:0,autoplay:0};loadYT(id)};
+const go=()=>{const id=ytId($('#url').value);if(!id){msg.textContent='YouTubeのURLを認識できませんでした。';return}ytOpts={controls:document.body.classList.contains('player')?0:1,start:0,autoplay:0};meta={title:'YouTube動画',ch:'YouTubeチャンネル'};fetchMeta(id);loadYT(id)};
 $('#bLoad').onclick=go;
 $('#url').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
 
@@ -285,7 +363,7 @@ function videoLayers(){
   player.classList.add('v');
 }
 function openFile(f){
-  if(!f)return;reset();mode='v';
+  if(!f)return;reset();mode='v';meta={title:f.name.replace(/\.[^.]+$/,''),ch:'ローカルファイル'};
   objUrl=URL.createObjectURL(f);v.src=objUrl;v.controls=true;v.loop=true;
   videoLayers();v.play().catch(()=>{});
 }
@@ -294,7 +372,7 @@ $('#bFile').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.pr
 $('#bCap').onclick=async()=>{
   try{
     const s=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:false});
-    reset();mode='v';capStream=s;v.muted=true;v.srcObject=s;videoLayers();v.play().catch(()=>{});
+    reset();mode='v';meta={title:'画面の取り込み',ch:'この端末'};capStream=s;v.muted=true;v.srcObject=s;videoLayers();v.play().catch(()=>{});
     s.getVideoTracks()[0].addEventListener('ended',reset);
   }catch(e){msg.textContent='画面の取り込みを開始できませんでした。このページを別タブで直接開いて試してください。'}
 };
@@ -413,7 +491,7 @@ addEventListener('keydown',e=>{
 function enterPlayer(style){
   if(!mode){msg.textContent='先に動画を読み込んでください。';return}
   const was=bodyC.contains('player');
-  bodyC.remove('pc','mob');bodyC.add('player',style);plStyle=style;
+  bodyC.remove('pc','mob');bodyC.add('player',style);plStyle=style;buildPage();scrollTo(0,0);setTimeout(updateSpMax,80);
   if(mode==='v')v.controls=false;
   if(mode==='yt'&&!was){const s=ms();ytOpts={controls:0,start:s.t,autoplay:s.p?1:0};loadYT(curId)}
   uiKey='';showUI();requestAnimationFrame(tickUI);
@@ -421,12 +499,74 @@ function enterPlayer(style){
 function exitPlayer(){
   const was=bodyC.contains('player');if(!was)return;
   const s=ms();
-  bodyC.remove('player','pc','mob');pl.classList.remove('show');
+  bodyC.remove('player','pc','mob');pl.classList.remove('show');setTimeout(updateSpMax,80);
   if(mode==='v'&&objUrl)v.controls=true;
   if(mode==='yt'){ytOpts={controls:1,start:s.t,autoplay:s.p?1:0};loadYT(curId)}
 }
 $('#bPc').onclick=()=>enterPlayer('pc');
 $('#bMob').onclick=()=>enterPlayer('mob');
+
+
+/* ---------- watch page (YouTubeの画面全体) ---------- */
+const PATH={
+ menu:'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z',
+ search:'M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
+ up:'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z',
+ share:'M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z',
+ spark:'M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z',
+ more:'M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
+ chk:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+ bell:'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z',
+ add:'M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z',
+ save:'M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z'
+};
+const ic=n=>`<svg viewBox="0 0 24 24"><path d="${PATH[n]}"/></svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const hsh=x=>[...String(x)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+let meta={title:'動画タイトル',ch:'チャンネル名'};
+function setMeta(o){Object.assign(meta,o);if(bodyC.contains('player'))buildPage()}
+function fetchMeta(id){
+  fetch('https://noembed.com/embed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+id))
+    .then(r=>r.json()).then(j=>{if(j&&j.title)setMeta({title:j.title,ch:j.author_name||meta.ch})}).catch(()=>{});
+}
+const REL=[['【公式】ライブ映像 Full Ver.','サンプルch'],['【作業用BGM】集中できる1時間ミックス','BGMラボ'],['初心者でも分かる！動画編集入門','編集ノート'],['【ドライブ】夜の街を走る 4K','NightRide'],['今週のハイライト まとめ','ウィークリー'],['【解説】光の仕組みを5分で','サイエンスch'],['【切り抜き】名場面集 Part.3','切り抜き部'],['【睡眠用】雨の音 3時間','Quiet Room'],['【検証】本当に光るのか？やってみた','実験ラボ'],['【Live】スタジオセッション 2026','Studio Live']];
+const CMT=[['ゆうき','最高！何回見ても飽きない'],['hikari','このシーンの光の演出すごい…'],['作業用','作業用に流してます。集中できる'],['みなみ','コメント欄にいる人みんなセンスいい']];
+const av=(name,cls)=>{const h=hsh(name)%360;return `<div class="av ${cls||''}" style="background:linear-gradient(135deg,hsl(${h} 65% 55%),hsl(${(h+50)%360} 65% 40%))">${esc(String(name).replace(/^@/,'').slice(0,1))}</div>`};
+const thumb=i=>{const h=(i*47+hsh(meta.title))%360;return `<div class="th" style="background:linear-gradient(135deg,hsl(${h} 60% 38%),hsl(${(h+70)%360} 65% 22%))"><b>${(i*7%50)+3}:${String(i*13%60).padStart(2,'0')}</b></div>`};
+function buildPage(){
+  const m=meta,h=hsh(m.title),likes=(h%90+3)+'万',views=(h%3000+100)+'万',subs=(h%900+10)+'万',cm=((h%20)+1)+'.'+(h%9)+'万';
+  const t=esc(m.title),c=esc(m.ch),chk=`<svg viewBox="0 0 24 24"><path d="${PATH.chk}"/></svg>`;
+  const rel=(i)=>{const r=REL[i%REL.length];return [r[0],r[1],(h*(i+3)%900+10)+'万 回視聴 ・ '+((i%11)+1)+'か月前']};
+  if(bodyC.contains('pc')){
+    $('#wh').innerHTML=`<button class="ib">${ic('menu')}</button><span class="logo"><svg viewBox="0 0 30 22"><rect width="30" height="22" rx="6" fill="#f03"/><path d="M12 6l8 5-8 5z" fill="#fff"/></svg>ambient</span><div class="srch"><input placeholder="検索"><button class="ib" style="width:64px;border-radius:0 999px 999px 0">${ic('search')}</button></div><button class="ib">${ic('add')}</button><button class="ib">${ic('bell')}</button><button class="ib" id="whGear" title="設定へ" style="font-size:20px">⚙</button>`;
+    $('#winfo').innerHTML=`<h1>${t}</h1>
+<div class="p-ch">${av(m.ch)}<div class="nm"><b>${c}${chk}</b><span class="mut">チャンネル登録者数 ${subs}人</span></div><button class="pill w" data-t="sub">チャンネル登録</button><span class="grow"></span>
+<div class="seg"><button class="pill" data-t="like">${ic('up')}<span>${likes}</span></button><button class="pill dn" data-t="dislike">${ic('up')}</button></div>
+<button class="pill">${ic('share')}共有</button><button class="pill">${ic('save')}保存</button><button class="ib pill dots3" style="padding:0;width:36px;justify-content:center">${ic('more')}</button></div>
+<div class="card"><b>${views}回視聴 ・ 1年前</b><br>動画の説明がここに表示されます。ハッシュタグやリンクなどもこの欄に入ります。<br><b>…もっと見る</b></div>
+<h3 style="font-size:20px;margin:24px 0 0">${cm}件のコメント</h3>
+<div class="add">${av('あなた','')}<div class="l">コメントする...</div></div>
+${CMT.map(x=>`<div class="cm">${av(x[0])}<div><span class="u">@${esc(x[0])}</span> <span class="mut">${(h%11)+1}か月前</span><p>${esc(x[1])}</p></div></div>`).join('')}`;
+    $('#wside').innerHTML=`<div class="chips"><span class="pill w">すべて</span><span class="pill">${c.slice(0,10)}</span><span class="pill">関連動画</span><span class="pill">最近アップロードされた動画</span></div>`+
+      REL.map((_,i)=>{const r=rel(i);return `<div class="rh">${thumb(i)}<div class="tx"><h4>${esc(r[0])}</h4><div class="mut">${esc(r[1])}<br>${r[2]}</div></div></div>`}).join('');
+  }else{
+    $('#wh').innerHTML='';
+    $('#winfo').innerHTML=`<h1>${t}</h1>
+<div class="m-meta"><span class="ch">@${c}${chk}</span><span>高評価 ${likes} 件</span><span>${views}回</span><b style="color:#f1f1f1">その他</b></div>
+<div class="m-act">${av(m.ch)}<button class="pill ch" data-t="sub">チャンネル...</button><button class="ib" data-t="like">${ic('up')}</button><button class="ib dn" data-t="dislike">${ic('up')}</button><button class="ib">${ic('share')}</button><button class="ib">${ic('spark')}</button><button class="ib">${ic('more')}</button></div>
+<div class="card"><div class="row2" style="justify-content:space-between"><span><b style="font-size:15px">コメント</b> <span class="mut">${cm}</span></span><span class="cdots"><i></i><i></i><i></i></span></div><div class="row2" style="margin-top:12px;align-items:flex-start">${av(CMT[0][0],'s')}<span>${esc(CMT[0][1])}</span></div></div>`;
+    $('#wside').innerHTML=REL.map((_,i)=>{const r=rel(i);return `<div class="rv">${thumb(i)}<div class="info">${av(r[1])}<div class="tx"><h4>${esc(r[0])}</h4><div class="mut">${esc(r[1])} ・ ${r[2]}</div></div><button class="ib dots3" style="width:28px">${ic('more')}</button></div></div>`}).join('');
+  }
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#whGear')){exitPlayer();return}
+  const b=e.target.closest('[data-t]');if(!b)return;
+  const k=b.dataset.t,r=$('#winfo');
+  if(k==='sub'){const on=b.classList.toggle('on');b.classList.toggle('w',!on);b.textContent=bodyC.contains('pc')?(on?'登録済み':'チャンネル登録'):(on?'登録済み':'チャンネル...')}
+  else if(k==='like'){const on=b.classList.toggle('on');if(on){const d=r.querySelector('[data-t=dislike]');d&&d.classList.remove('on')}}
+  else if(k==='dislike'){const on=b.classList.toggle('on');if(on){const l=r.querySelector('[data-t=like]');l&&l.classList.remove('on')}}
+});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&bodyC.contains('player')&&!document.fullscreenElement)exitPlayer()});
 
 /* ---------- modes ---------- */
 $('#bCinema').onclick=e=>e.currentTarget.classList.toggle('on',document.body.classList.toggle('cinema'));
