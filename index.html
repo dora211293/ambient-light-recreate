@@ -87,7 +87,7 @@ body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointe
       <label class="s"><b>明るさ<output id="oIn"></output></b><input id="rIn" type="range" min="0" max="1" step=".01" value="1"></label>
       <label class="s"><b>鮮やかさ<output id="oSa"></output></b><input id="rSa" type="range" min="1" max="3" step=".05" value="1"></label>
       <label class="s"><b>境界のなじませ<output id="oFe"></output></b><input id="rFe" type="range" min="0" max="60" step="1" value="0"></label>
-      <label class="s"><b>重ねる数<output id="oN"></output></b><input id="rN" type="range" min="3" max="40" step="1" value="16"></label>
+      <label class="s"><b>重ねる数<output id="oN"></output></b><input id="rN" type="range" min="3" max="100" step="1" value="16"></label>
     </div>
     <div class="msg" id="msg"></div>
   </section>
@@ -102,17 +102,29 @@ let P={sp:.9,bl:18,inn:1,sa:1,fe:0,n:16}, mode='', curId='', frames=[], canvases
 /* ---------- params ---------- */
 function apply(){
   document.documentElement.style.setProperty('--fe',P.fe+'px');
-  const n=layersEl.children.length;
+  const n=layersEl.children.length, bf=Math.max(1,(1+.506*P.sp)/1.5);
   [...layersEl.children].forEach((el,i)=>{
     const t=n>1?1-i/(n-1):0;
     el.style.transform=`scale(${1+(.006+t*.5)*P.sp})`;
-    el.style.filter=`blur(${((.28+.72*Math.pow(t,.85))*P.bl).toFixed(1)}px) saturate(${1+(P.sa-1)*t})`;
+    el.style.filter=`blur(${((.28+.72*Math.pow(t,.85))*P.bl*bf).toFixed(1)}px) saturate(${1+(P.sa-1)*t})`;
     el.style.opacity=Math.min(1,P.inn*(1-.4*t));
   });
   document.documentElement.style.setProperty('--fe',P.fe+'px');
 }
 [['rSp','oSp','sp',x=>x.toFixed(2)+'x'],['rBl','oBl','bl',x=>x+'px'],['rIn','oIn','inn',x=>Math.round(x*100)+'%'],['rSa','oSa','sa',x=>x.toFixed(2)],['rFe','oFe','fe',x=>x+'px']]
 .forEach(([r,o,k,f])=>{const el=$('#'+r),out=$('#'+o);const u=()=>{P[k]=+el.value;out.textContent=f(P[k]);apply()};el.addEventListener('input',u);u()});
+
+/* 光の広がりの上限: 最外層が画面全体を覆うところまで */
+function updateSpMax(){
+  if(document.fullscreenElement)return;
+  const w=$('#wrap'),W=w.offsetWidth,H=w.offsetHeight;if(!W||!H)return;
+  const cx=w.offsetLeft+W/2,cy=w.offsetTop+H/2,vw=innerWidth,vh=innerHeight;
+  const S=Math.max(Math.max(cx,vw-cx)/(W/2),Math.max(cy,vh-cy)/(H/2))*1.12;
+  const el=$('#rSp'),max=Math.min(14,Math.max(2.2,(S-1)/.506));
+  if(Math.abs(+el.max-max)<.02)return;
+  el.max=max.toFixed(2);el.dispatchEvent(new Event('input'));
+}
+addEventListener('resize',updateSpMax);addEventListener('load',updateSpMax);setTimeout(updateSpMax,0);
 
 /* ---------- reset / layers ---------- */
 function reset(){
@@ -122,10 +134,12 @@ function reset(){
   if(capStream){capStream.getTracks().forEach(t=>t.stop());capStream=null}
   if(objUrl){URL.revokeObjectURL(objUrl);objUrl=null}
   v.pause();v.removeAttribute('src');v.srcObject=null;v.controls=false;
-  player.className='player';mode='';$('#wrap').style.setProperty('--ar',1.7778);
+  player.className='player';mode='';$('#wrap').style.setProperty('--ar',1.7778);updateSpMax();
 }
 function buildLayers(make){
-  for(let i=0;i<P.n;i++){const d=document.createElement('div');d.className='layer';d.appendChild(make());layersEl.appendChild(d)}
+  const N=mode==='yt'?Math.min(P.n,20):P.n;
+  if(mode==='yt'&&P.n>20)msg.textContent='YouTubeは重いので、重ねる数は20枚までです。';
+  for(let i=0;i<N;i++){const d=document.createElement('div');d.className='layer';d.appendChild(make());layersEl.appendChild(d)}
   apply();
 }
 
@@ -200,7 +214,7 @@ $('#url').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
 
 /* ---------- file / capture (canvas layers) ---------- */
 function videoLayers(){
-  buildLayers(()=>{const c=document.createElement('canvas');c.width=480;c.height=270;canvases.push(c);return c});
+  buildLayers(()=>{const c=document.createElement('canvas');const q=P.n>60?160:P.n>30?320:480;c.width=q;c.height=Math.round(q*9/16);canvases.push(c);return c});
   player.classList.add('v');
 }
 function openFile(f){
@@ -222,7 +236,7 @@ addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('over')});
 addEventListener('dragleave',e=>{if(e.target===document.documentElement)wrap.classList.remove('over')});
 addEventListener('drop',e=>{e.preventDefault();wrap.classList.remove('over');const f=e.dataTransfer&&e.dataTransfer.files[0];if(f&&f.type.startsWith('video/'))openFile(f)});
 
-function fitAr(){if(mode==='v'&&v.videoWidth)$('#wrap').style.setProperty('--ar',(v.videoWidth/v.videoHeight).toFixed(4))}
+function fitAr(){if(mode==='v'&&v.videoWidth)$('#wrap').style.setProperty('--ar',(v.videoWidth/v.videoHeight).toFixed(4));updateSpMax()}
 v.addEventListener('loadedmetadata',fitAr);v.addEventListener('resize',fitAr);
 
 /* ---------- modes ---------- */
