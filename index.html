@@ -56,6 +56,46 @@ body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointe
 .stage:fullscreen{background:#000;justify-content:center;padding:0;min-height:100%;height:100%}
 .stage:fullscreen .panel{display:none}
 .stage:fullscreen .wrap{width:min(100vw,calc(100vh*var(--ar)))}
+
+/* ---- player mode ---- */
+.pl{position:absolute;inset:0;z-index:5;display:none;color:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body.player .pl{display:block}
+body.player .panel{display:none}
+.pl .shade{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:linear-gradient(rgba(0,0,0,.55),transparent 28%,transparent 58%,rgba(0,0,0,.75))}
+.pl .ui{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s}
+.pl.show .shade,.pl.show .ui{opacity:1}
+.pl.show .ctl{pointer-events:auto}
+body.pc .pl:not(.show){cursor:none}
+body.pc .mob-only,body.mob .pc-only{display:none!important}
+.pl button{background:none;border:0;padding:0;color:#fff;font:inherit}
+.pl .ico{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;cursor:pointer}
+.pl .ico svg{width:26px;height:26px;fill:currentColor}
+.pl button.big,.pl button.huge{background:rgba(0,0,0,.45)}
+.pl button.big{width:54px;height:54px}.pl button.big svg{width:32px;height:32px}
+.pl button.huge{width:72px;height:72px}.pl button.huge svg{width:44px;height:44px}
+.pl button.big:hover,.pl button.huge:hover{background:rgba(0,0,0,.6)}
+.pl .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(18px,9vw,64px);pointer-events:none}
+.pl .row{position:absolute;left:12px;right:12px;bottom:4px;height:40px;display:flex;align-items:center;gap:4px}
+.pl .left{display:flex;align-items:center}
+.pl .vol{width:0;opacity:0;transition:width .2s,opacity .2s;accent-color:#fff;height:16px}
+.pl .left:hover .vol,.pl .vol:focus{width:72px;opacity:1;margin:0 8px 0 2px}
+.pl .time{font-size:13px;font-variant-numeric:tabular-nums;margin-left:6px;white-space:nowrap}
+.pl .sp{flex:1}
+.pl .bar{position:absolute;left:12px;right:12px;bottom:42px;height:20px;cursor:pointer;touch-action:none}
+.pl .trk{position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;background:rgba(255,255,255,.3);border-radius:2px;transition:height .15s,margin .15s}
+body.pc .pl .bar:hover .trk{height:5px;margin-top:-2.5px}
+.pl .fill{height:100%;width:0;background:#f03;border-radius:2px}
+.pl .dot{position:absolute;top:50%;left:0;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:#f03;transform:scale(0);transition:transform .15s}
+body.pc .pl .bar:hover .dot,.pl .bar.drag .dot,body.mob .pl .dot{transform:scale(1)}
+body.mob .pl .bar{bottom:34px}
+body.mob .pl .row{bottom:0}
+.pl .gear{position:absolute}
+body.pc .pl .gear{bottom:4px;right:56px}
+body.mob .pl .gear{top:10px;right:10px}
+.pl .ripple{position:absolute;top:50%;margin-top:-24px;padding:13px 20px;border-radius:999px;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;font-size:.95rem}
+.pl .ripple.l{left:8%}.pl .ripple.r{right:8%}
+.pl .ripple.go{animation:rpl .65s}
+@keyframes rpl{0%,70%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -67,6 +107,21 @@ body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointe
       <video id="v" playsinline loop></video>
       <div class="empty">YouTubeのURLを貼るか、動画ファイルをドロップ</div>
     </div>
+    <div class="pl" id="pl">
+      <div class="shade"></div>
+      <div class="ripple" id="rp"></div>
+      <div class="ui">
+        <button class="ctl ico gear" id="pGear" aria-label="設定"></button>
+        <div class="center mob-only"><button class="ctl ico big" id="mBack" aria-label="10秒戻る"></button><button class="ctl ico huge" id="mPlay" aria-label="再生/一時停止"></button><button class="ctl ico big" id="mFwd" aria-label="10秒進む"></button></div>
+        <div class="bar ctl" id="bar"><div class="trk"><div class="fill" id="fill"></div></div><div class="dot" id="dot"></div></div>
+        <div class="row">
+          <div class="left pc-only"><button class="ctl ico" id="pPlay" aria-label="再生/一時停止"></button><button class="ctl ico" id="pVol" aria-label="ミュート"></button><input class="ctl vol" id="pVolR" type="range" min="0" max="100" value="100" aria-label="音量"></div>
+          <span class="time" id="tm">0:00 / 0:00</span>
+          <span class="sp"></span>
+          <button class="ctl ico" id="pFull" aria-label="全画面"></button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <section class="panel">
@@ -77,6 +132,8 @@ body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointe
     <div class="row">
       <label class="btn" id="bFile" tabindex="0">動画ファイル<input id="file" type="file" accept="video/*" hidden></label>
       <button id="bCap">タブ / 画面を取り込む</button>
+      <button id="bPc">プレーヤー(PC)</button>
+      <button id="bMob">プレーヤー(スマホ)</button>
       <span class="sp"></span>
       <button id="bCinema">シネマモード</button>
       <button id="bFull">全画面</button>
@@ -97,6 +154,8 @@ body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointe
 (()=>{
 const $=s=>document.querySelector(s);
 const v=$('#v'), player=$('#player'), layersEl=$('#layers'), msg=$('#msg');
+let ytOpts={controls:1,start:0,autoplay:0};
+const ytExtra=()=>(ytOpts.controls===0?'&controls=0&disablekb=1':'')+(ytOpts.start?'&start='+Math.floor(ytOpts.start):'')+(ytOpts.autoplay?'&autoplay=1':'');
 let P={sp:.9,bl:18,inn:1,sa:1,fe:0,n:16}, mode='', curId='', frames=[], canvases=[], objUrl=null, capStream=null, ytTimer=0, ytCheck=0;
 
 /* ---------- params ---------- */
@@ -166,6 +225,9 @@ addEventListener('message',e=>{
   if((d.event==='infoDelivery'||d.event==='initialDelivery')&&d.info){
     if(d.info.currentTime!=null){o.t=d.info.currentTime;o.stamp=performance.now()}
     if(d.info.playerState!=null)o.st=d.info.playerState;
+    if(d.info.duration!=null)o.d=d.info.duration;
+    if(d.info.volume!=null)o.vol=d.info.volume;
+    if(d.info.muted!=null)o.mute=d.info.muted;
   }else if(d.event==='onStateChange'){o.st=d.info}
   o.ready=true;ytst.set(e.source,o);
 });
@@ -176,7 +238,7 @@ function loadYT(id){
   const base=`https://www.youtube.com/embed/${id}?enablejsapi=1&playsinline=1&rel=0&iv_load_policy=3`;
   const main=document.createElement('iframe');
   main.referrerPolicy='strict-origin-when-cross-origin';
-  main.src=base;main.allow='accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';main.allowFullscreen=true;
+  main.src=base+ytExtra();main.allow='accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';main.allowFullscreen=true;
   player.insertBefore(main,v);player.classList.add('y');
   buildYT();
   main.addEventListener('load',()=>listen(main.contentWindow));
@@ -213,7 +275,7 @@ function ytSync(){
     if(Math.abs(est(o)-est(m))>.35&&(m.st===1||m.st===2))cmd(w,'seekTo',[est(m),true]);
   });
 }
-const go=()=>{const id=ytId($('#url').value);if(!id){msg.textContent='YouTubeのURLを認識できませんでした。';return}loadYT(id)};
+const go=()=>{const id=ytId($('#url').value);if(!id){msg.textContent='YouTubeのURLを認識できませんでした。';return}ytOpts={controls:document.body.classList.contains('player')?0:1,start:0,autoplay:0};loadYT(id)};
 $('#bLoad').onclick=go;
 $('#url').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
 
@@ -243,6 +305,128 @@ addEventListener('drop',e=>{e.preventDefault();wrap.classList.remove('over');con
 
 function fitAr(){if(mode==='v'&&v.videoWidth)$('#wrap').style.setProperty('--ar',(v.videoWidth/v.videoHeight).toFixed(4));updateSpMax()}
 v.addEventListener('loadedmetadata',fitAr);v.addEventListener('resize',fitAr);
+
+
+/* ---------- player mode ---------- */
+const pl=$('#pl'), bodyC=document.body.classList;
+const IC={
+ play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+ pause:'<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
+ vol:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>',
+ mute:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.6.6L18 8.2l2 2 2-2 1.4 1.4-2 2 2 2-1.4 1.4-2-2-2 2-1.4-1.4 2-2z"/></svg>',
+ gear:'<svg viewBox="0 0 24 24"><path d="M19.1 12.9c0-.3.1-.6.1-.9s0-.6-.1-.9l2-1.6c.2-.1.2-.4.1-.6l-1.9-3.3c-.1-.2-.4-.3-.6-.2l-2.4 1c-.5-.4-1-.7-1.6-.9l-.4-2.5c0-.2-.2-.4-.5-.4h-3.8c-.3 0-.5.2-.5.4l-.4 2.5c-.6.2-1.1.5-1.6.9l-2.4-1c-.2-.1-.5 0-.6.2L2.7 8.8c-.1.2-.1.5.1.6l2 1.6c0 .3-.1.6-.1.9s0 .6.1.9l-2 1.6c-.2.1-.2.4-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1 .7 1.6.9l.4 2.5c0 .2.2.4.5.4h3.8c.3 0 .5-.2.5-.4l.4-2.5c.6-.2 1.1-.5 1.6-.9l2.4 1c.2.1.5 0 .6-.2l1.9-3.3c.1-.2.1-.5-.1-.6zM12 15.6a3.6 3.6 0 1 1 0-7.200 3.600 3.600 0 0 1 0 7.200z"/></svg>',
+ full:'<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg>',
+ back:'<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/><text x="12" y="16.500" font-size="7" font-weight="700" text-anchor="middle" fill="#000">10</text></svg>',
+ fwd:'<svg viewBox="0 0 24 24"><g transform="translate(24 0) scale(-1 1)"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></g><text x="12" y="16.500" font-size="7" font-weight="700" text-anchor="middle" fill="#000">10</text></svg>'
+};
+const el$={play:$('#pPlay'),mplay:$('#mPlay'),vol:$('#pVol'),volr:$('#pVolR'),gear:$('#pGear'),full:$('#pFull'),back:$('#mBack'),fwd:$('#mFwd'),bar:$('#bar'),fill:$('#fill'),dot:$('#dot'),tm:$('#tm'),rp:$('#rp')};
+el$.gear.innerHTML=IC.gear;el$.full.innerHTML=IC.full;el$.back.innerHTML=IC.back;el$.fwd.innerHTML=IC.fwd;
+const fmt=x=>{x=Math.max(0,Math.floor(x||0));const h=Math.floor(x/3600),m=Math.floor(x%3600/60),s=x%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
+
+/* 動画 / YouTube を同じ操作で扱う */
+const mw=()=>frames[0]&&frames[0].contentWindow;
+function ms(){
+  if(mode==='yt'){const o=ytst.get(mw());return o?{p:o.st===1||o.st===3,t:est(o),d:o.d||0,vol:o.mute?0:(o.vol==null?100:o.vol)}:{p:false,t:0,d:0,vol:100}}
+  return {p:!v.paused,t:v.currentTime||0,d:isFinite(v.duration)?v.duration:0,vol:v.muted?0:v.volume*100};
+}
+function mToggle(){
+  const s=ms();
+  if(mode==='yt'){cmd(mw(),s.p?'pauseVideo':'playVideo');const o=ytst.get(mw());if(o)o.st=s.p?2:1}
+  else s.p?v.pause():v.play().catch(()=>{});
+  showUI();
+}
+function mSeek(t){
+  const s=ms();t=Math.max(0,s.d?Math.min(s.d,t):t);
+  if(mode==='yt'){cmd(mw(),'seekTo',[t,true]);const o=ytst.get(mw());if(o){o.t=t;o.stamp=performance.now()}}
+  else v.currentTime=t;
+}
+const mBy=d=>mSeek(ms().t+d);
+let lastVol=100;
+function mVol(x){
+  x=Math.max(0,Math.min(100,x));if(x>0)lastVol=x;
+  if(mode==='yt'){const o=ytst.get(mw());cmd(mw(),'setVolume',[x]);cmd(mw(),x?'unMute':'mute');if(o){o.vol=x;o.mute=!x}}
+  else{v.muted=!x;v.volume=x/100}
+}
+const fsToggle=()=>$('#bFull').click();
+
+/* 表示 */
+let plStyle='pc',plTimer=0,dragR=null,uiKey='';
+function showUI(){pl.classList.add('show');clearTimeout(plTimer);plTimer=setTimeout(()=>{if(ms().p&&dragR==null)pl.classList.remove('show')},2800)}
+function ripple(dir){const r=el$.rp;r.className='ripple '+(dir<0?'l':'r');r.textContent=dir<0?'« 10秒':'10秒 »';void r.offsetWidth;r.classList.add('go')}
+function tickUI(){
+  if(!bodyC.contains('player'))return;
+  const s=ms(),ratio=dragR!=null?dragR:(s.d?Math.min(1,s.t/s.d):0);
+  el$.fill.style.width=(ratio*100)+'%';el$.dot.style.left=(ratio*100)+'%';
+  el$.tm.textContent=fmt(ratio*s.d)+' / '+fmt(s.d);
+  const key=(s.p?'p':'s')+(s.vol>0?'v':'m');
+  if(key!==uiKey){uiKey=key;
+    el$.play.innerHTML=s.p?IC.pause:IC.play;el$.mplay.innerHTML=s.p?IC.pause:IC.play;
+    el$.vol.innerHTML=s.vol>0?IC.vol:IC.mute;
+    if(s.p&&pl.classList.contains('show'))showUI();
+  }
+  if(document.activeElement!==el$.volr)el$.volr.value=s.vol;
+  requestAnimationFrame(tickUI);
+}
+
+/* 操作 */
+el$.play.onclick=el$.mplay.onclick=mToggle;
+el$.back.onclick=()=>{mBy(-10);ripple(-1);showUI()};
+el$.fwd.onclick=()=>{mBy(10);ripple(1);showUI()};
+el$.vol.onclick=()=>{mVol(ms().vol>0?0:(lastVol||100));showUI()};
+el$.volr.addEventListener('input',e=>{mVol(+e.target.value);showUI()});
+el$.full.onclick=()=>{fsToggle();showUI()};
+el$.gear.onclick=()=>exitPlayer();
+el$.bar.addEventListener('pointerdown',e=>{
+  e.preventDefault();el$.bar.setPointerCapture(e.pointerId);el$.bar.classList.add('drag');
+  const mv=ev=>{const r=el$.bar.getBoundingClientRect();dragR=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))};
+  mv(e);
+  const up=ev=>{el$.bar.removeEventListener('pointermove',mv);el$.bar.removeEventListener('pointerup',up);el$.bar.removeEventListener('pointercancel',up);
+    const d=ms().d;if(d&&dragR!=null)mSeek(dragR*d);dragR=null;el$.bar.classList.remove('drag');showUI()};
+  el$.bar.addEventListener('pointermove',mv);el$.bar.addEventListener('pointerup',up);el$.bar.addEventListener('pointercancel',up);
+});
+let lastTap=0,tapTO=0;
+pl.addEventListener('pointerup',e=>{
+  if(e.target.closest('.ctl'))return;
+  const r=pl.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,now=Date.now(),dbl=now-lastTap<300;lastTap=now;
+  if(dbl){clearTimeout(tapTO);lastTap=0;
+    if(plStyle==='mob'&&x<.35){mBy(-10);ripple(-1)}else if(plStyle==='mob'&&x>.65){mBy(10);ripple(1)}else fsToggle();
+    showUI();
+  }else tapTO=setTimeout(()=>{
+    if(plStyle==='pc')mToggle();
+    else if(pl.classList.contains('show'))pl.classList.remove('show');else showUI();
+  },300);
+});
+pl.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')showUI()});
+addEventListener('keydown',e=>{
+  if(!bodyC.contains('player')||/INPUT|TEXTAREA/.test(e.target.tagName)&&e.target.type!=='range')return;
+  const k=e.key;let h=true;
+  if(k===' '||k==='k')mToggle();
+  else if(k==='ArrowLeft')mBy(-5);else if(k==='ArrowRight')mBy(5);
+  else if(k==='j')mBy(-10);else if(k==='l')mBy(10);
+  else if(k==='ArrowUp')mVol(ms().vol+5);else if(k==='ArrowDown')mVol(ms().vol-5);
+  else if(k==='m')el$.vol.click();else if(k==='f')fsToggle();
+  else h=false;
+  if(h){e.preventDefault();showUI()}
+});
+
+/* 入る / 出る */
+function enterPlayer(style){
+  if(!mode){msg.textContent='先に動画を読み込んでください。';return}
+  const was=bodyC.contains('player');
+  bodyC.remove('pc','mob');bodyC.add('player',style);plStyle=style;
+  if(mode==='v')v.controls=false;
+  if(mode==='yt'&&!was){const s=ms();ytOpts={controls:0,start:s.t,autoplay:s.p?1:0};loadYT(curId)}
+  uiKey='';showUI();requestAnimationFrame(tickUI);
+}
+function exitPlayer(){
+  const was=bodyC.contains('player');if(!was)return;
+  const s=ms();
+  bodyC.remove('player','pc','mob');pl.classList.remove('show');
+  if(mode==='v'&&objUrl)v.controls=true;
+  if(mode==='yt'){ytOpts={controls:1,start:s.t,autoplay:s.p?1:0};loadYT(curId)}
+}
+$('#bPc').onclick=()=>enterPlayer('pc');
+$('#bMob').onclick=()=>enterPlayer('mob');
 
 /* ---------- modes ---------- */
 $('#bCinema').onclick=e=>e.currentTarget.classList.toggle('on',document.body.classList.toggle('cinema'));
