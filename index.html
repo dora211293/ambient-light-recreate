@@ -107,7 +107,7 @@ function apply(){
     const t=n>1?1-i/(n-1):0;
     el.style.transform=`scale(${1+(.006+t*.5)*P.sp})`;
     el.style.filter=`blur(${((.28+.72*Math.pow(t,.85))*P.bl*bf).toFixed(1)}px) saturate(${1+(P.sa-1)*t})`;
-    el.style.opacity=Math.min(1,P.inn*(1-.4*t));
+    el.style.opacity=Math.min(1,P.inn*(1-.2*t));
   });
   document.documentElement.style.setProperty('--fe',P.fe+'px');
 }
@@ -115,15 +115,20 @@ function apply(){
 .forEach(([r,o,k,f])=>{const el=$('#'+r),out=$('#'+o);const u=()=>{P[k]=+el.value;out.textContent=f(P[k]);apply()};el.addEventListener('input',u);u()});
 
 /* 光の広がりの上限: 最外層が画面全体を覆うところまで */
+let userSp=null;
+$('#rSp').addEventListener('input',e=>{if(e.isTrusted)userSp=+e.target.value});
 function updateSpMax(){
-  if(document.fullscreenElement)return;
   const w=$('#wrap'),W=w.offsetWidth,H=w.offsetHeight;if(!W||!H)return;
-  const cx=w.offsetLeft+W/2,cy=w.offsetTop+H/2,vw=innerWidth,vh=innerHeight;
-  const S=Math.max(Math.max(cx,vw-cx)/(W/2),Math.max(cy,vh-cy)/(H/2))*1.12;
-  const el=$('#rSp'),max=Math.min(14,Math.max(2.2,(S-1)/.506));
+  const r=w.getBoundingClientRect(),vw=innerWidth,vh=innerHeight;
+  const cx=r.left+W/2,cy=r.top+H/2;
+  const S=Math.max(Math.max(cx,vw-cx)/(W/2),Math.max(cy,vh-cy)/(H/2))*1.35;
+  const el=$('#rSp'),max=Math.min(20,Math.max(2.2,(S-1)/.506));
   if(Math.abs(+el.max-max)<.02)return;
-  el.max=max.toFixed(2);el.dispatchEvent(new Event('input'));
+  el.max=max.toFixed(2);
+  if(userSp!=null)el.value=Math.min(userSp,max);
+  el.dispatchEvent(new Event('input'));
 }
+document.addEventListener('fullscreenchange',()=>setTimeout(updateSpMax,150));
 addEventListener('resize',updateSpMax);addEventListener('load',updateSpMax);setTimeout(updateSpMax,0);
 
 /* ---------- reset / layers ---------- */
