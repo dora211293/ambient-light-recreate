@@ -2,7 +2,7 @@
   "name": "ambient light recreate",
   "short_name": "ambient light recreate",
   "description": "映像の色が周囲に広がるアンビエントライトプレイヤー",
-  "start_url": "./",
+  "start_url": "./index.html?source=pwa",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
@@ -29,5 +29,5 @@
       "purpose": "maskable"
     }
   ],
-  "id": "ambient-light-recreate"
+  "id": "ambient-light-recreate-pwa"
 }
