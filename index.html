@@ -16,6 +16,9 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Zen Kaku Gothi
 .layers{position:absolute;inset:0;pointer-events:none}
 .layer{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;background:#000;will-change:transform,filter}
 .layer iframe,.layer canvas{width:100%;height:100%;border:0;display:block;pointer-events:none}
+.ytglow{position:absolute;inset:0;pointer-events:none}
+.ytglow iframe{width:100%;height:100%;border:0;display:block}
+.ov{position:absolute;inset:0}
 .player{position:relative;z-index:1;width:100%;height:100%;overflow:hidden;background:transparent;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%),linear-gradient(to bottom,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%),linear-gradient(to bottom,transparent 0,#000 var(--fe),#000 calc(100% - var(--fe)),transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
 .player video,.player iframe{width:100%;height:100%;border:0;display:none;background:#000;object-fit:contain}
 .player.v video,.player.y iframe{display:block}
@@ -91,7 +94,27 @@ const v=$('#v'), player=$('#player'), layersEl=$('#layers'), msg=$('#msg');
 let P={sp:.9,bl:18,inn:1,sa:1,fe:0,n:16}, mode='', curId='', frames=[], canvases=[], objUrl=null, capStream=null, ytTimer=0, ytCheck=0;
 
 /* ---------- params ---------- */
+function applyYT(){
+  const host=layersEl.firstElementChild;if(!host)return;
+  const S=1+.506*P.sp, e=(1-1/S)*50, n=P.n, r=e/n*1.6, fe=e*.8;
+  host.style.transform=`scale(${S})`;
+  host.style.opacity=P.inn;
+  const edge=a=>`linear-gradient(to ${a},transparent 0,#000 ${fe}%,#000 ${100-fe}%,transparent 100%)`;
+  host.style.webkitMaskImage=host.style.maskImage=`${edge('right')},${edge('bottom')}`;
+  host.style.webkitMaskComposite='source-in';host.style.maskComposite='intersect';
+  host.firstElementChild.style.filter=`saturate(${P.sa})`;
+  const b=Math.max(.5,P.bl/Math.sqrt(n));
+  [...host.children].slice(1).forEach((o,i)=>{
+    const x=e*(1-i/n);
+    const g=a=>`linear-gradient(to ${a},#000 0,#000 ${x}%,transparent ${x+r}%,transparent ${100-x-r}%,#000 ${100-x}%,#000 100%)`;
+    o.style.webkitMaskImage=o.style.maskImage=`${g('right')},${g('bottom')}`;
+    o.style.webkitMaskComposite='source-over';o.style.maskComposite='add';
+    o.style.backdropFilter=o.style.webkitBackdropFilter=`blur(${b.toFixed(1)}px)`;
+  });
+}
 function apply(){
+  document.documentElement.style.setProperty('--fe',P.fe+'px');
+  if(mode==='yt'){applyYT();return}
   const n=layersEl.children.length;
   [...layersEl.children].forEach((el,i)=>{
     const t=n>1?1-i/(n-1):0;
@@ -155,15 +178,16 @@ function loadYT(id){
   ytCheck=setTimeout(()=>{if(![...ytst.values()].length)msg.textContent='YouTubeを読み込めませんでした。URL、または埋め込みが許可されているか確認してください。'},6000);
 }
 function buildYT(){
-  const base=`https://www.youtube.com/embed/${curId}?enablejsapi=1&playsinline=1&rel=0&iv_load_policy=3`;
-  buildLayers(()=>{
-    const f=document.createElement('iframe');
-    f.referrerPolicy='strict-origin-when-cross-origin';
-    f.src=base+'&controls=0&disablekb=1&mute=1&modestbranding=1';f.tabIndex=-1;f.setAttribute('aria-hidden','true');
-    f.addEventListener('load',()=>listen(f.contentWindow));
-    return f;
-  });
-  frames=[player.querySelector('iframe'),...layersEl.querySelectorAll('iframe')];
+  const f=document.createElement('iframe');
+  f.referrerPolicy='strict-origin-when-cross-origin';
+  f.src=`https://www.youtube.com/embed/${curId}?enablejsapi=1&playsinline=1&rel=0&iv_load_policy=3&controls=0&disablekb=1&mute=1&modestbranding=1`;
+  f.tabIndex=-1;f.setAttribute('aria-hidden','true');
+  f.addEventListener('load',()=>listen(f.contentWindow));
+  const host=document.createElement('div');host.className='ytglow';host.appendChild(f);
+  for(let i=0;i<P.n;i++){const o=document.createElement('div');o.className='ov';host.appendChild(o)}
+  layersEl.appendChild(host);
+  frames=[player.querySelector('iframe'),f];
+  apply();
 }
 function rebuild(){
   if(!mode)return;
@@ -181,7 +205,7 @@ function ytSync(){
     if(!o.muted){cmd(w,'mute');o.muted=true}
     if(m.st===1&&o.st!==1)cmd(w,'playVideo');
     else if(m.st!==1&&m.st!==3&&o.st===1)cmd(w,'pauseVideo');
-    if(Math.abs(est(o)-est(m))>.35&&(m.st===1||m.st===2))cmd(w,'seekTo',[est(m),true]);
+    if(Math.abs(est(o)-est(m))>.5&&(m.st===1||m.st===2))cmd(w,'seekTo',[est(m),true]);
   });
 }
 const go=()=>{const id=ytId($('#url').value);if(!id){msg.textContent='YouTubeのURLを認識できませんでした。';return}loadYT(id)};
