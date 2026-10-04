@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ambient light recreate</title>
+<meta name="description" content="動画の色が周囲に広がるアンビエントライトプレーヤー。動画ファイル・画面の取り込み・YouTubeに対応。">
+<meta property="og:title" content="ambient light recreate">
+<meta property="og:description" content="動画の色が周囲に広がるアンビエントライトプレーヤー">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#050507">
 <meta name="application-name" content="ambient light recreate">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -57,6 +62,26 @@ body.cinema .stage:hover .panel,body.cinema .panel:focus-within{opacity:1;pointe
 .stage:fullscreen .panel{display:none}
 .stage:fullscreen .wrap{width:min(100vw,calc(100vh*var(--ar)))}
 
+[hidden]{display:none!important}
+.panel .row.foot{justify-content:center;gap:18px}
+.panel .row.foot>.lnk{flex:0 0 auto;min-height:0;background:none;border:0;border-radius:0;padding:6px 4px;color:var(--mute);font-size:.8rem;text-decoration:underline}
+.about{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:max(20px,env(safe-area-inset-top,0px)) 20px max(20px,env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body.about-open .about{display:flex}
+.about .box{max-width:460px;max-height:100%;overflow:auto;background:#17171d;border:1px solid var(--line);border-radius:20px;padding:22px 22px 16px;font-size:.88rem;line-height:1.85;color:#d9d7e6}
+.about h2{margin:0 0 8px;font-size:1.05rem;color:#fff}
+.about ul{margin:0 0 14px;padding-left:1.2em}
+.about li{margin-bottom:6px}
+.about button{display:block;margin:0 auto}
+/* ---- phone optimisation ---- */
+html{-webkit-text-size-adjust:100%}
+button,.btn,input{touch-action:manipulation}
+.url{flex:1 1 160px}
+@media (max-width:700px){
+  .stage{padding-left:max(4vw,env(safe-area-inset-left,0px));padding-right:max(4vw,env(safe-area-inset-right,0px))}
+  .panel .row>button,.panel .row>.btn{flex:1 1 calc(50% - 5px);text-align:center;min-height:44px}
+  .panel .row>#bLoad{flex:0 0 auto}
+  .panel .sp{display:none}
+}
 /* ---- player mode ---- */
 .pl{position:absolute;inset:0;z-index:5;display:none;color:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 body.player .pl{display:block}
@@ -65,117 +90,88 @@ body.player .panel{display:none}
 .pl .ui{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s}
 .pl.show .shade,.pl.show .ui{opacity:1}
 .pl.show .ctl{pointer-events:auto}
-body.pc .pl:not(.show){cursor:none}
-body.pc .mob-only,body.mob .pc-only{display:none!important}
 .pl button{background:none;border:0;padding:0;color:#fff;font:inherit}
-.pl .ico{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;cursor:pointer}
+.pl .ico{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
 .pl .ico svg{width:26px;height:26px;fill:currentColor}
 .pl button.big,.pl button.huge{background:rgba(0,0,0,.45)}
 .pl button.big{width:54px;height:54px}.pl button.big svg{width:32px;height:32px}
 .pl button.huge{width:72px;height:72px}.pl button.huge svg{width:44px;height:44px}
-.pl button.big:hover,.pl button.huge:hover{background:rgba(0,0,0,.6)}
 .pl .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(18px,9vw,64px);pointer-events:none}
-.pl .row{position:absolute;left:12px;right:12px;bottom:4px;height:40px;display:flex;align-items:center;gap:4px}
-.pl .left{display:flex;align-items:center}
-.pl .vol{width:0;opacity:0;transition:width .2s,opacity .2s;accent-color:#fff;height:16px}
-.pl .left:hover .vol,.pl .vol:focus{width:72px;opacity:1;margin:0 8px 0 2px}
+.pl .row{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));right:calc(12px + env(safe-area-inset-right,0px));bottom:0;height:40px;display:flex;align-items:center;gap:4px}
 .pl .time{font-size:13px;font-variant-numeric:tabular-nums;margin-left:6px;white-space:nowrap}
 .pl .sp{flex:1}
-.pl .bar{position:absolute;left:12px;right:12px;bottom:42px;height:20px;cursor:pointer;touch-action:none}
-.pl .trk{position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;background:rgba(255,255,255,.3);border-radius:2px;transition:height .15s,margin .15s}
-body.pc .pl .bar:hover .trk{height:5px;margin-top:-2.5px}
+.pl .bar{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));right:calc(12px + env(safe-area-inset-right,0px));bottom:34px;height:24px;touch-action:none}
+.pl .trk{position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;background:rgba(255,255,255,.3);border-radius:2px}
 .pl .fill{height:100%;width:0;background:#f03;border-radius:2px}
-.pl .dot{position:absolute;top:50%;left:0;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:#f03;transform:scale(0);transition:transform .15s}
-body.pc .pl .bar:hover .dot,.pl .bar.drag .dot,body.mob .pl .dot{transform:scale(1)}
-body.mob .pl .bar{bottom:34px}
-body.mob .pl .row{bottom:0}
-.pl .gear{position:absolute}
-body.pc .pl .gear{bottom:4px;right:56px}
-body.mob .pl .gear{top:10px;right:10px}
+.pl .dot{position:absolute;top:50%;left:0;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:#f03}
+.pl .bar.drag .dot{transform:scale(1.5)}
+.pl .gear{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px))}
 .pl .ripple{position:absolute;top:50%;margin-top:-24px;padding:13px 20px;border-radius:999px;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;font-size:.95rem}
 .pl .ripple.l{left:8%}.pl .ripple.r{right:8%}
 .pl .ripple.go{animation:rpl .65s}
 @keyframes rpl{0%,70%{opacity:1}100%{opacity:0}}
-
-/* ---- watch page ---- */
-.wh,#winfo,#wside{display:none}
+/* ---- watch page (phone) ---- */
+#winfo,#wside{display:none}
 #wcol,#wprim{display:contents}
-body.player{background:#0f0f0f}
+body.player{background:#0f0f0f;overscroll-behavior-y:contain}
 body.player .stage:not(:fullscreen){display:block;padding:0;min-height:100vh;color:#f1f1f1}
+body.player .stage:not(:fullscreen) #wcol,body.player .stage:not(:fullscreen) #wprim{display:block}
+body.player .stage:not(:fullscreen) .wrap{width:100%;margin:0}
 body.player .stage:not(:fullscreen) #winfo,body.player .stage:not(:fullscreen) #wside{display:block;position:relative;z-index:2}
-body.player .stage:not(:fullscreen) #wprim{display:block}
-body.player .stage:not(:fullscreen) .wrap{margin:0}
-body.pc .stage:not(:fullscreen) .wh{display:flex}
-body.pc .stage:not(:fullscreen) #wcol{display:grid;grid-template-columns:minmax(0,1fr) 402px;gap:24px;padding:80px 24px 48px;max-width:1760px;min-width:1080px;margin:0 auto}
-body.pc .stage:not(:fullscreen) .wrap{width:min(100%,calc((100vh - 190px)*var(--ar)))}
-body.mob .stage:not(:fullscreen) #wcol{display:block}
-body.mob .stage:not(:fullscreen) .wrap{width:100%}
-.wh{position:fixed;top:0;left:0;right:0;height:56px;z-index:30;align-items:center;gap:14px;padding:0 16px;background:rgba(15,15,15,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.wh .logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:18px;letter-spacing:-.4px}
-.wh .logo svg{width:30px;height:22px}
-.wh .srch{flex:1;max-width:640px;margin:0 auto;display:flex}
-.wh .srch input{flex:1;min-width:0;height:40px;background:#121212;border:1px solid #303030;border-radius:999px 0 0 999px;color:#fff;padding:0 16px;font:inherit}
-.wh .srch button{width:64px;height:40px;background:rgba(255,255,255,.08);border:1px solid #303030;border-left:0;border-radius:0 999px 999px 0}
-.wh .sp{flex:0}
-.wh button,#winfo button,#wside button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
-.ib{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
-.ib:hover{background:rgba(255,255,255,.1)}
+body.player .stage:not(:fullscreen) #winfo{padding:0 12px}
+body.player .stage:not(:fullscreen) #wside{margin-top:14px;padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (orientation:landscape) and (max-height:520px){
+  body.player .stage:not(:fullscreen) .wrap{width:min(100%,calc(100svh*var(--ar)));margin:0 auto}
+}
+#winfo button,#wside button,.sheet button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
 .ib svg,.pill svg{width:22px;height:22px;fill:currentColor}
-#winfo h1{font-size:20px;line-height:28px;font-weight:700;margin:14px 0 8px}
-body.mob #winfo h1{font-size:17px;line-height:23px;margin:12px 0 6px}
-#winfo,#wside{padding:0}
-body.mob #winfo{padding:0 12px}
+.ib.on{color:#3ea6ff}
+.dn svg{transform:scaleY(-1)}
+.dots3 svg{transform:rotate(90deg)}
+#winfo h1{font-size:17px;line-height:23px;font-weight:700;margin:12px 0 6px}
 .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;color:#fff}
 .av.s{width:28px;height:28px;font-size:13px}
 .mut{color:#aaa;font-size:13px}
 .pill{height:36px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.1);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.pill:hover{background:rgba(255,255,255,.18)}
-.pill.w,.pill.on{background:#f1f1f1;color:#0f0f0f}
-.seg{display:flex;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;flex:none}
-.seg .pill{background:none;border-radius:0}
-.seg .pill+.pill{border-left:1px solid rgba(255,255,255,.2)}
-.seg .pill.on{background:rgba(255,255,255,.28);color:#fff}
-.dn svg{transform:scaleY(-1)}
-.dots3 svg{transform:rotate(90deg)}
+.pill.on{background:#f1f1f1;color:#0f0f0f}
 .row2{display:flex;align-items:center;gap:12px}
-.card{background:rgba(255,255,255,.1);border-radius:12px;padding:12px;margin:12px 0;font-size:14px;line-height:20px}
-.th{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;flex:none}
+.card{background:rgba(255,255,255,.1);border-radius:12px;padding:12px;margin:12px 0;font-size:14px;line-height:20px;cursor:pointer}
+.th{position:relative;aspect-ratio:16/9;overflow:hidden;flex:none}
 .th b{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.8);border-radius:4px;padding:1px 5px;font-size:12px}
-.p-ch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 12px}
-.p-ch .nm{display:flex;flex-direction:column;line-height:20px;margin-right:6px}
-.p-ch .nm b{font-size:16px;display:flex;align-items:center;gap:4px}
-.p-ch .nm svg{width:14px;height:14px;fill:#aaa}
-.p-ch .grow{flex:1}
-.cm{display:flex;gap:14px;margin:18px 0;font-size:14px;line-height:20px}
-.cm .u{font-weight:600;font-size:13px}
-.cm p{margin:2px 0 0}
-.add{display:flex;gap:14px;align-items:center;margin:20px 0}
-.add div.l{flex:1;border-bottom:1px solid #444;padding:6px 0;color:#aaa;font-size:14px}
-.chips{display:flex;gap:8px;margin:0 0 12px;overflow:hidden}
-.chips .pill{height:32px;font-size:14px;font-weight:500}
-.rh{display:flex;gap:8px;margin-bottom:10px}
-.rh .th{width:168px;border-radius:8px}
-.rh .tx{flex:1;min-width:0}
-.rh h4,.rv h4{font-size:14px;line-height:20px;margin:0 0 4px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rv{margin:0 0 20px}
-.rv .th{border-radius:0}
-.rv .info{display:flex;gap:12px;padding:12px 12px 0}
-.rv .info .tx{flex:1;min-width:0}
 .m-meta{display:flex;align-items:center;gap:10px;color:#aaa;font-size:13px;white-space:nowrap;overflow:hidden}
 .m-meta .ch{color:#f1f1f1;font-weight:600;display:inline-flex;align-items:center;gap:4px}
 .m-meta svg{width:13px;height:13px;fill:#aaa}
-.m-act{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0}
-.m-act .pill.ch{flex:0 1 auto;max-width:40%;overflow:hidden;text-overflow:ellipsis}
-.m-act .ib{width:44px}
-.m-act .ib.on{color:#3ea6ff}
+.m-act{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:12px 0}
+.m-act .pill.ch{flex:0 1 auto;max-width:38%;overflow:hidden;text-overflow:ellipsis;display:block;line-height:36px}
 .cdots{display:flex;gap:5px}.cdots i{width:7px;height:7px;border-radius:50%;background:#555}.cdots i:first-child{width:22px;border-radius:4px;background:#f1f1f1}
-body.mob #wside{margin-top:14px}
+.rv{margin:0 0 20px}
+.rv h4{font-size:14px;line-height:20px;margin:0 0 4px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rv .info{display:flex;gap:12px;padding:12px 12px 0}
+.rv .info .tx{flex:1;min-width:0}
+/* ---- comments sheet ---- */
+.sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet{position:fixed;left:0;right:0;bottom:0;height:78vh;height:78dvh;z-index:61;background:rgba(18,18,22,.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);backdrop-filter:blur(30px) saturate(1.5);text-shadow:0 1px 2px rgba(0,0,0,.45);color:#f1f1f1;border-radius:16px 16px 0 0;transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+body.csheet .sheet-bg{opacity:1;pointer-events:auto}
+body.csheet .sheet{transform:none}
+body.csheet{overflow:hidden}
+.sheet .grab{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.4);margin:8px auto 0}
+.sheet #shHd{flex:none;touch-action:none}
+.sheet .hd{display:flex;align-items:center;gap:10px;padding:4px 4px 8px 16px;font-size:16px;font-weight:700}
+.sheet .hd .sp{flex:1}
+.sheet .list{flex:1;overflow-y:auto;padding:0 16px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.sheet .inp{flex:none;display:flex;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid rgba(255,255,255,.14)}
+.sheet .inp div.f{flex:1;background:rgba(255,255,255,.12);border-radius:999px;padding:11px 16px;color:#aaa;font-size:14px}
+.cm{display:flex;gap:12px;margin:16px 0;font-size:14px;line-height:20px}
+.cm .u{font-weight:600;font-size:13px}
+.cm p{margin:2px 0 0}
+.cm .ca{display:flex;align-items:center;gap:4px;margin:4px 0 0 -9px;color:#aaa;font-size:12px}
+.cm .ca .ib{width:36px;height:36px}.cm .ca svg{width:18px;height:18px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <main class="stage" id="stage">
-  <header class="wh" id="wh"></header>
   <div class="wcol" id="wcol"><div class="wprim" id="wprim">
   <div class="wrap" id="wrap">
     <div class="layers" id="layers"></div>
@@ -188,10 +184,9 @@ body.mob #wside{margin-top:14px}
       <div class="ripple" id="rp"></div>
       <div class="ui">
         <button class="ctl ico gear" id="pGear" aria-label="設定"></button>
-        <div class="center mob-only"><button class="ctl ico big" id="mBack" aria-label="10秒戻る"></button><button class="ctl ico huge" id="mPlay" aria-label="再生/一時停止"></button><button class="ctl ico big" id="mFwd" aria-label="10秒進む"></button></div>
+        <div class="center"><button class="ctl ico big" id="mBack" aria-label="10秒戻る"></button><button class="ctl ico huge" id="mPlay" aria-label="再生/一時停止"></button><button class="ctl ico big" id="mFwd" aria-label="10秒進む"></button></div>
         <div class="bar ctl" id="bar"><div class="trk"><div class="fill" id="fill"></div></div><div class="dot" id="dot"></div></div>
         <div class="row">
-          <div class="left pc-only"><button class="ctl ico" id="pPlay" aria-label="再生/一時停止"></button><button class="ctl ico" id="pVol" aria-label="ミュート"></button><input class="ctl vol" id="pVolR" type="range" min="0" max="100" value="100" aria-label="音量"></div>
           <span class="time" id="tm">0:00 / 0:00</span>
           <span class="sp"></span>
           <button class="ctl ico" id="pFull" aria-label="全画面"></button>
@@ -204,14 +199,13 @@ body.mob #wside{margin-top:14px}
 
   <section class="panel">
     <div class="row">
-      <input class="url" id="url" type="text" inputmode="url" placeholder="YouTubeのURLを貼り付け" autocomplete="off">
+      <input class="url" id="url" type="text" inputmode="url" placeholder="YouTubeのURLを貼り付け" enterkeyhint="go" autocomplete="off">
       <button id="bLoad">読み込む</button>
     </div>
     <div class="row">
       <label class="btn" id="bFile" tabindex="0">動画ファイル<input id="file" type="file" accept="video/*" hidden></label>
       <button id="bCap">タブ / 画面を取り込む</button>
-      <button id="bPc">プレーヤー(PC)</button>
-      <button id="bMob">プレーヤー(スマホ)</button>
+      <button id="bMob">プレーヤー</button>
       <span class="sp"></span>
       <button id="bCinema">シネマモード</button>
       <button id="bFull">全画面</button>
@@ -222,19 +216,33 @@ body.mob #wside{margin-top:14px}
       <label class="s"><b>明るさ<output id="oIn"></output></b><input id="rIn" type="range" min="0" max="1" step=".01" value="1"></label>
       <label class="s"><b>鮮やかさ<output id="oSa"></output></b><input id="rSa" type="range" min="1" max="3" step=".05" value="1"></label>
       <label class="s"><b>境界のなじませ<output id="oFe"></output></b><input id="rFe" type="range" min="0" max="60" step="1" value="0"></label>
+      <label class="s"><b>輝度ブースト<output id="oBs"></output></b><input id="rBs" type="range" min="1" max="2" step=".01" value="1"></label>
       <label class="s"><b>重ねる数<output id="oN"></output></b><input id="rN" type="range" min="3" max="100" step="1" value="16"></label>
     </div>
     <div class="msg" id="msg"></div>
+    <div class="row foot"><button class="lnk" id="bReset">初期値に戻す</button><button class="lnk" id="bAbout">このアプリについて</button></div>
   </section>
 </main>
+<div class="about" id="about" role="dialog" aria-modal="true" aria-label="このアプリについて"><div class="box">
+  <h2>このアプリについて</h2>
+  <ul>
+    <li>動画ファイルや取り込んだ画面の映像は、この端末のブラウザの中だけで処理されます。アップロードされません。</li>
+    <li>YouTubeはYouTube公式の埋め込みプレーヤーで再生します。タイトルの取得に外部サービス(noembed.com)を使うので、動画IDがそこに送られます。YouTubeとは無関係の非公式アプリです。</li>
+    <li id="aboutSample">プレーヤーモードの関連動画やコメントは、見た目を再現するためのサンプルです。実際のものではありません。</li>
+    <li>設定はこの端末のブラウザにだけ保存されます。</li>
+  </ul>
+  <button id="bAboutX">閉じる</button>
+</div></div>
 
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
 const v=$('#v'), player=$('#player'), layersEl=$('#layers'), msg=$('#msg');
+const ENABLE_PLAYER_UI=false; /* trueにするとYouTube風プレーヤーモード(操作UI・画面全体・コメント)が復活します */
+const ENABLE_YT=true; /* falseにするとYouTube機能を外して公開できます */
 let ytOpts={controls:1,start:0,autoplay:0};
 const ytExtra=()=>(ytOpts.controls===0?'&controls=0&disablekb=1':'')+(ytOpts.start?'&start='+Math.floor(ytOpts.start):'')+(ytOpts.autoplay?'&autoplay=1':'');
-let P={sp:.9,bl:18,inn:1,sa:1,fe:0,n:16}, mode='', curId='', frames=[], canvases=[], objUrl=null, capStream=null, ytTimer=0, ytCheck=0;
+let P={sp:.9,bl:18,inn:1,sa:1,fe:0,bst:1,n:16}, mode='', curId='', frames=[], canvases=[], objUrl=null, capStream=null, ytTimer=0, ytCheck=0;
 
 /* ---------- params ---------- */
 function apply(){
@@ -243,16 +251,24 @@ function apply(){
   [...layersEl.children].forEach((el,i)=>{
     const t=n>1?1-i/(n-1):0;
     el.style.transform=`scale(${1+(.006+t*.5)*P.sp})`;
-    el.style.filter=`blur(${((.28+.72*Math.pow(t,.85))*P.bl*bf).toFixed(1)}px) saturate(${1+(P.sa-1)*t})`;
+    el.style.filter=`blur(${((.28+.72*Math.pow(t,.85))*P.bl*bf).toFixed(1)}px) saturate(${1+(P.sa-1)*t}) brightness(${(1+(P.bst-1)*(.3+.7*t)).toFixed(3)})`;
     el.style.opacity=Math.min(1,P.inn*(1-.2*t));
   });
   document.documentElement.style.setProperty('--fe',P.fe+'px');
 }
-[['rSp','oSp','sp',x=>x.toFixed(2)+'x'],['rBl','oBl','bl',x=>x+'px'],['rIn','oIn','inn',x=>Math.round(x*100)+'%'],['rSa','oSa','sa',x=>x.toFixed(2)],['rFe','oFe','fe',x=>x+'px']]
+/* 設定の保存・復元 / 端末に合わせた初期値 */
+const SL=['rSp','rBl','rIn','rSa','rFe','rBs','rN'], SKEY='alr.settings.v1';
+let savedSp=null;
+try{
+  const sv=JSON.parse(localStorage.getItem(SKEY)||'null');
+  if(sv){SL.forEach(id=>{if(sv[id]!=null)$('#'+id).value=sv[id]});if(sv.rSp!=null)savedSp=+sv.rSp;if(sv.rN!=null)P.n=+sv.rN}
+  else if((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)){$('#rN').value=8;P.n=8}
+}catch(e){}
+[['rSp','oSp','sp',x=>x.toFixed(2)+'x'],['rBl','oBl','bl',x=>x+'px'],['rIn','oIn','inn',x=>Math.round(x*100)+'%'],['rSa','oSa','sa',x=>x.toFixed(2)],['rFe','oFe','fe',x=>x+'px'],['rBs','oBs','bst',x=>x.toFixed(2)+'x']]
 .forEach(([r,o,k,f])=>{const el=$('#'+r),out=$('#'+o);const u=()=>{P[k]=+el.value;out.textContent=f(P[k]);apply()};el.addEventListener('input',u);u()});
 
 /* 光の広がりの上限: 最外層が画面全体を覆うところまで */
-let userSp=null;
+let userSp=savedSp;
 $('#rSp').addEventListener('input',e=>{if(e.isTrusted)userSp=+e.target.value});
 function updateSpMax(){
   const w=$('#wrap'),W=w.offsetWidth,H=w.offsetHeight;if(!W||!H)return;
@@ -265,8 +281,17 @@ function updateSpMax(){
   if(userSp!=null)el.value=Math.min(userSp,max);
   el.dispatchEvent(new Event('input'));
 }
-document.addEventListener('fullscreenchange',()=>setTimeout(updateSpMax,150));
-addEventListener('resize',updateSpMax);addEventListener('load',updateSpMax);setTimeout(updateSpMax,0);
+let saveT=0;
+function saveSettings(){clearTimeout(saveT);saveT=setTimeout(()=>{try{const o={};SL.forEach(id=>o[id]=$('#'+id).value);if(userSp!=null)o.rSp=userSp;localStorage.setItem(SKEY,JSON.stringify(o))}catch(e){}},300)}
+SL.forEach(id=>$('#'+id).addEventListener('input',saveSettings));
+$('#bReset').onclick=()=>{
+  const D={rSp:.9,rBl:18,rIn:1,rSa:1,rFe:0,rBs:1,rN:16};
+  try{localStorage.removeItem(SKEY)}catch(e){}
+  userSp=D.rSp;
+  Object.entries(D).forEach(([id,v])=>{const el=$('#'+id);el.value=v;el.dispatchEvent(new Event('input'))});
+  P.n=16;$('#rN').dispatchEvent(new Event('change'));
+};
+addEventListener('resize',updateSpMax);document.addEventListener('fullscreenchange',()=>setTimeout(updateSpMax,150));addEventListener('load',updateSpMax);setTimeout(updateSpMax,0);
 
 /* ---------- reset / layers ---------- */
 function reset(){
@@ -359,7 +384,7 @@ $('#url').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
 
 /* ---------- file / capture (canvas layers) ---------- */
 function videoLayers(){
-  buildLayers(()=>{const c=document.createElement('canvas');const q=P.n>60?160:P.n>30?320:480;c.width=q;c.height=Math.round(q*9/16);canvases.push(c);return c});
+  buildLayers(()=>{const c=document.createElement('canvas');const q=P.n>60?160:P.n>30?320:480;c.width=q;c.height=Math.round(q*9/16);try{c.getContext('2d',{colorSpace:'display-p3'})}catch(e){}canvases.push(c);return c});
   player.classList.add('v');
 }
 function openFile(f){
@@ -390,22 +415,20 @@ const pl=$('#pl'), bodyC=document.body.classList;
 const IC={
  play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
  pause:'<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
- vol:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>',
- mute:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.6.6L18 8.2l2 2 2-2 1.4 1.4-2 2 2 2-1.4 1.4-2-2-2 2-1.4-1.4 2-2z"/></svg>',
- gear:'<svg viewBox="0 0 24 24"><path d="M19.1 12.9c0-.3.1-.6.1-.9s0-.6-.1-.9l2-1.6c.2-.1.2-.4.1-.6l-1.9-3.3c-.1-.2-.4-.3-.6-.2l-2.4 1c-.5-.4-1-.7-1.6-.9l-.4-2.5c0-.2-.2-.4-.5-.4h-3.8c-.3 0-.5.2-.5.4l-.4 2.5c-.6.2-1.1.5-1.6.9l-2.4-1c-.2-.1-.5 0-.6.2L2.7 8.8c-.1.2-.1.5.1.6l2 1.6c0 .3-.1.6-.1.9s0 .6.1.9l-2 1.6c-.2.1-.2.4-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1 .7 1.6.9l.4 2.5c0 .2.2.4.5.4h3.8c.3 0 .5-.2.5-.4l.4-2.5c.6-.2 1.1-.5 1.6-.9l2.4 1c.2.1.5 0 .6-.2l1.9-3.3c.1-.2.1-.5-.1-.6zM12 15.6a3.6 3.6 0 1 1 0-7.200 3.600 3.600 0 0 1 0 7.200z"/></svg>',
+ gear:'<svg viewBox="0 0 24 24"><path d="M19.1 12.9c0-.3.1-.6.1-.9s0-.6-.1-.9l2-1.6c.2-.1.2-.4.1-.6l-1.9-3.3c-.1-.2-.4-.3-.6-.2l-2.4 1c-.5-.4-1-.7-1.6-.9l-.4-2.5c0-.2-.2-.4-.5-.4h-3.8c-.3 0-.5.2-.5.4l-.4 2.5c-.6.2-1.1.5-1.6.9l-2.4-1c-.2-.1-.5 0-.6.2L2.7 8.8c-.1.2-.1.5.1.6l2 1.6c0 .3-.1.6-.1.9s0 .6.1.9l-2 1.6c-.2.1-.2.4-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1 .7 1.6.9l.4 2.5c0 .2.2.4.5.4h3.8c.3 0 .5-.2.5-.4l.4-2.5c.6-.2 1.1-.5 1.6-.9l2.4 1c.2.1.5 0 .6-.2l1.9-3.3c.1-.2.1-.5-.1-.6zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg>',
  full:'<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg>',
- back:'<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/><text x="12" y="16.500" font-size="7" font-weight="700" text-anchor="middle" fill="#000">10</text></svg>',
- fwd:'<svg viewBox="0 0 24 24"><g transform="translate(24 0) scale(-1 1)"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></g><text x="12" y="16.500" font-size="7" font-weight="700" text-anchor="middle" fill="#000">10</text></svg>'
+ back:'<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/><text x="12" y="16.5" font-size="7" font-weight="700" text-anchor="middle" fill="#000">10</text></svg>',
+ fwd:'<svg viewBox="0 0 24 24"><g transform="translate(24 0) scale(-1 1)"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></g><text x="12" y="16.5" font-size="7" font-weight="700" text-anchor="middle" fill="#000">10</text></svg>'
 };
-const el$={play:$('#pPlay'),mplay:$('#mPlay'),vol:$('#pVol'),volr:$('#pVolR'),gear:$('#pGear'),full:$('#pFull'),back:$('#mBack'),fwd:$('#mFwd'),bar:$('#bar'),fill:$('#fill'),dot:$('#dot'),tm:$('#tm'),rp:$('#rp')};
+const el$={mplay:$('#mPlay'),gear:$('#pGear'),full:$('#pFull'),back:$('#mBack'),fwd:$('#mFwd'),bar:$('#bar'),fill:$('#fill'),dot:$('#dot'),tm:$('#tm'),rp:$('#rp')};
 el$.gear.innerHTML=IC.gear;el$.full.innerHTML=IC.full;el$.back.innerHTML=IC.back;el$.fwd.innerHTML=IC.fwd;
 const fmt=x=>{x=Math.max(0,Math.floor(x||0));const h=Math.floor(x/3600),m=Math.floor(x%3600/60),s=x%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
 
 /* 動画 / YouTube を同じ操作で扱う */
 const mw=()=>frames[0]&&frames[0].contentWindow;
 function ms(){
-  if(mode==='yt'){const o=ytst.get(mw());return o?{p:o.st===1||o.st===3,t:est(o),d:o.d||0,vol:o.mute?0:(o.vol==null?100:o.vol)}:{p:false,t:0,d:0,vol:100}}
-  return {p:!v.paused,t:v.currentTime||0,d:isFinite(v.duration)?v.duration:0,vol:v.muted?0:v.volume*100};
+  if(mode==='yt'){const o=ytst.get(mw());return o?{p:o.st===1||o.st===3,t:est(o),d:o.d||0}:{p:false,t:0,d:0}}
+  return {p:!v.paused,t:v.currentTime||0,d:isFinite(v.duration)?v.duration:0};
 }
 function mToggle(){
   const s=ms();
@@ -419,16 +442,10 @@ function mSeek(t){
   else v.currentTime=t;
 }
 const mBy=d=>mSeek(ms().t+d);
-let lastVol=100;
-function mVol(x){
-  x=Math.max(0,Math.min(100,x));if(x>0)lastVol=x;
-  if(mode==='yt'){const o=ytst.get(mw());cmd(mw(),'setVolume',[x]);cmd(mw(),x?'unMute':'mute');if(o){o.vol=x;o.mute=!x}}
-  else{v.muted=!x;v.volume=x/100}
-}
 const fsToggle=()=>$('#bFull').click();
 
 /* 表示 */
-let plStyle='pc',plTimer=0,dragR=null,uiKey='';
+let plTimer=0,dragR=null,uiKey='';
 function showUI(){pl.classList.add('show');clearTimeout(plTimer);plTimer=setTimeout(()=>{if(ms().p&&dragR==null)pl.classList.remove('show')},2800)}
 function ripple(dir){const r=el$.rp;r.className='ripple '+(dir<0?'l':'r');r.textContent=dir<0?'« 10秒':'10秒 »';void r.offsetWidth;r.classList.add('go')}
 function tickUI(){
@@ -436,29 +453,22 @@ function tickUI(){
   const s=ms(),ratio=dragR!=null?dragR:(s.d?Math.min(1,s.t/s.d):0);
   el$.fill.style.width=(ratio*100)+'%';el$.dot.style.left=(ratio*100)+'%';
   el$.tm.textContent=fmt(ratio*s.d)+' / '+fmt(s.d);
-  const key=(s.p?'p':'s')+(s.vol>0?'v':'m');
-  if(key!==uiKey){uiKey=key;
-    el$.play.innerHTML=s.p?IC.pause:IC.play;el$.mplay.innerHTML=s.p?IC.pause:IC.play;
-    el$.vol.innerHTML=s.vol>0?IC.vol:IC.mute;
-    if(s.p&&pl.classList.contains('show'))showUI();
-  }
-  if(document.activeElement!==el$.volr)el$.volr.value=s.vol;
+  const key=s.p?'p':'s';
+  if(key!==uiKey){uiKey=key;el$.mplay.innerHTML=s.p?IC.pause:IC.play;if(s.p&&pl.classList.contains('show'))showUI()}
   requestAnimationFrame(tickUI);
 }
 
 /* 操作 */
-el$.play.onclick=el$.mplay.onclick=mToggle;
+el$.mplay.onclick=mToggle;
 el$.back.onclick=()=>{mBy(-10);ripple(-1);showUI()};
 el$.fwd.onclick=()=>{mBy(10);ripple(1);showUI()};
-el$.vol.onclick=()=>{mVol(ms().vol>0?0:(lastVol||100));showUI()};
-el$.volr.addEventListener('input',e=>{mVol(+e.target.value);showUI()});
 el$.full.onclick=()=>{fsToggle();showUI()};
 el$.gear.onclick=()=>exitPlayer();
 el$.bar.addEventListener('pointerdown',e=>{
   e.preventDefault();el$.bar.setPointerCapture(e.pointerId);el$.bar.classList.add('drag');
   const mv=ev=>{const r=el$.bar.getBoundingClientRect();dragR=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))};
   mv(e);
-  const up=ev=>{el$.bar.removeEventListener('pointermove',mv);el$.bar.removeEventListener('pointerup',up);el$.bar.removeEventListener('pointercancel',up);
+  const up=()=>{el$.bar.removeEventListener('pointermove',mv);el$.bar.removeEventListener('pointerup',up);el$.bar.removeEventListener('pointercancel',up);
     const d=ms().d;if(d&&dragR!=null)mSeek(dragR*d);dragR=null;el$.bar.classList.remove('drag');showUI()};
   el$.bar.addEventListener('pointermove',mv);el$.bar.addEventListener('pointerup',up);el$.bar.addEventListener('pointercancel',up);
 });
@@ -467,58 +477,40 @@ pl.addEventListener('pointerup',e=>{
   if(e.target.closest('.ctl'))return;
   const r=pl.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,now=Date.now(),dbl=now-lastTap<300;lastTap=now;
   if(dbl){clearTimeout(tapTO);lastTap=0;
-    if(plStyle==='mob'&&x<.35){mBy(-10);ripple(-1)}else if(plStyle==='mob'&&x>.65){mBy(10);ripple(1)}else fsToggle();
+    if(x<.35){mBy(-10);ripple(-1)}else if(x>.65){mBy(10);ripple(1)}else fsToggle();
     showUI();
-  }else tapTO=setTimeout(()=>{
-    if(plStyle==='pc')mToggle();
-    else if(pl.classList.contains('show'))pl.classList.remove('show');else showUI();
-  },300);
-});
-pl.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')showUI()});
-addEventListener('keydown',e=>{
-  if(!bodyC.contains('player')||/INPUT|TEXTAREA/.test(e.target.tagName)&&e.target.type!=='range')return;
-  const k=e.key;let h=true;
-  if(k===' '||k==='k')mToggle();
-  else if(k==='ArrowLeft')mBy(-5);else if(k==='ArrowRight')mBy(5);
-  else if(k==='j')mBy(-10);else if(k==='l')mBy(10);
-  else if(k==='ArrowUp')mVol(ms().vol+5);else if(k==='ArrowDown')mVol(ms().vol-5);
-  else if(k==='m')el$.vol.click();else if(k==='f')fsToggle();
-  else h=false;
-  if(h){e.preventDefault();showUI()}
+  }else tapTO=setTimeout(()=>{if(pl.classList.contains('show'))pl.classList.remove('show');else showUI()},300);
 });
 
 /* 入る / 出る */
-function enterPlayer(style){
+function enterPlayer(){
+  if(!ENABLE_PLAYER_UI)return;
   if(!mode){msg.textContent='先に動画を読み込んでください。';return}
   const was=bodyC.contains('player');
-  bodyC.remove('pc','mob');bodyC.add('player',style);plStyle=style;buildPage();scrollTo(0,0);setTimeout(updateSpMax,80);
+  bodyC.add('player');
   if(mode==='v')v.controls=false;
   if(mode==='yt'&&!was){const s=ms();ytOpts={controls:0,start:s.t,autoplay:s.p?1:0};loadYT(curId)}
+  buildPage();scrollTo(0,0);setTimeout(updateSpMax,80);
   uiKey='';showUI();requestAnimationFrame(tickUI);
 }
 function exitPlayer(){
-  const was=bodyC.contains('player');if(!was)return;
-  const s=ms();
-  bodyC.remove('player','pc','mob');pl.classList.remove('show');setTimeout(updateSpMax,80);
+  if(!bodyC.contains('player'))return;
+  const s=ms();closeComments();
+  bodyC.remove('player');pl.classList.remove('show');setTimeout(updateSpMax,80);
   if(mode==='v'&&objUrl)v.controls=true;
   if(mode==='yt'){ytOpts={controls:1,start:s.t,autoplay:s.p?1:0};loadYT(curId)}
 }
-$('#bPc').onclick=()=>enterPlayer('pc');
-$('#bMob').onclick=()=>enterPlayer('mob');
+$('#bMob').onclick=enterPlayer;
+if(!ENABLE_PLAYER_UI)$('#bMob').hidden=true;
 
-
-/* ---------- watch page (YouTubeの画面全体) ---------- */
+/* ---------- watch page (スマホ) ---------- */
 const PATH={
- menu:'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z',
- search:'M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
  up:'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z',
  share:'M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z',
  spark:'M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z',
  more:'M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
  chk:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
- bell:'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z',
- add:'M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z',
- save:'M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z'
+ x:'M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'
 };
 const ic=n=>`<svg viewBox="0 0 24 24"><path d="${PATH[n]}"/></svg>`;
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
@@ -530,47 +522,62 @@ function fetchMeta(id){
     .then(r=>r.json()).then(j=>{if(j&&j.title)setMeta({title:j.title,ch:j.author_name||meta.ch})}).catch(()=>{});
 }
 const REL=[['【公式】ライブ映像 Full Ver.','サンプルch'],['【作業用BGM】集中できる1時間ミックス','BGMラボ'],['初心者でも分かる！動画編集入門','編集ノート'],['【ドライブ】夜の街を走る 4K','NightRide'],['今週のハイライト まとめ','ウィークリー'],['【解説】光の仕組みを5分で','サイエンスch'],['【切り抜き】名場面集 Part.3','切り抜き部'],['【睡眠用】雨の音 3時間','Quiet Room'],['【検証】本当に光るのか？やってみた','実験ラボ'],['【Live】スタジオセッション 2026','Studio Live']];
-const CMT=[['ゆうき','最高！何回見ても飽きない'],['hikari','このシーンの光の演出すごい…'],['作業用','作業用に流してます。集中できる'],['みなみ','コメント欄にいる人みんなセンスいい']];
+const NM=['ゆうき','hikari','作業用','みなみ','そら','kei_','リン','たくみ','ミオ','ぽん'];
+const TX=['最高！何回見ても飽きない','このシーンの光の演出すごい…','作業用に流してます。集中できる','コメント欄にいる人みんなセンスいい','0:42からの展開が好きすぎる','これ公式なの？クオリティ高すぎ','何度でもリピートしてしまう','イヤホンで聴くと鳥肌立つ','サビの入りが神','まだ見てない人うらやましい'];
 const av=(name,cls)=>{const h=hsh(name)%360;return `<div class="av ${cls||''}" style="background:linear-gradient(135deg,hsl(${h} 65% 55%),hsl(${(h+50)%360} 65% 40%))">${esc(String(name).replace(/^@/,'').slice(0,1))}</div>`};
 const thumb=i=>{const h=(i*47+hsh(meta.title))%360;return `<div class="th" style="background:linear-gradient(135deg,hsl(${h} 60% 38%),hsl(${(h+70)%360} 65% 22%))"><b>${(i*7%50)+3}:${String(i*13%60).padStart(2,'0')}</b></div>`};
+
+document.body.insertAdjacentHTML('beforeend',`<div class="sheet-bg" id="shBg"></div><div class="sheet" id="sh" role="dialog" aria-label="コメント"><div id="shHd"><div class="grab"></div><div class="hd"><span id="shT">コメント</span><span class="sp"></span><span class="pill" style="height:32px;font-weight:500">上位</span><button class="ib" id="shX" aria-label="閉じる">${ic('x')}</button></div></div><div class="list" id="shL"></div><div class="inp"><span id="shAv"></span><div class="f">コメントを追加...(サンプル表示)</div></div></div>`);
+const sh=$('#sh');
+function openComments(){bodyC.add('csheet')}
+function closeComments(){bodyC.remove('csheet');sh.style.transform=''}
+$('#shBg').onclick=closeComments;$('#shX').onclick=closeComments;
+addEventListener('fullscreenchange',()=>{if(document.fullscreenElement)closeComments()});
+/* 下にスワイプで閉じる */
+(()=>{let y0=0,dy=0,on=false;const hd=$('#shHd');
+  hd.addEventListener('pointerdown',e=>{on=true;y0=e.clientY;dy=0;hd.setPointerCapture(e.pointerId);sh.style.transition='none'});
+  hd.addEventListener('pointermove',e=>{if(!on)return;dy=Math.max(0,e.clientY-y0);sh.style.transform=`translateY(${dy}px)`});
+  const end=()=>{if(!on)return;on=false;sh.style.transition='';if(dy>90)closeComments();else sh.style.transform=''};
+  hd.addEventListener('pointerup',end);hd.addEventListener('pointercancel',end);
+})();
+
 function buildPage(){
-  const m=meta,h=hsh(m.title),likes=(h%90+3)+'万',views=(h%3000+100)+'万',subs=(h%900+10)+'万',cm=((h%20)+1)+'.'+(h%9)+'万';
+  const m=meta,h=hsh(m.title),likes=(h%90+3)+'万',views=(h%3000+100)+'万',cm=((h%20)+1)+'.'+(h%9)+'万';
   const t=esc(m.title),c=esc(m.ch),chk=`<svg viewBox="0 0 24 24"><path d="${PATH.chk}"/></svg>`;
-  const rel=(i)=>{const r=REL[i%REL.length];return [r[0],r[1],(h*(i+3)%900+10)+'万 回視聴 ・ '+((i%11)+1)+'か月前']};
-  if(bodyC.contains('pc')){
-    $('#wh').innerHTML=`<button class="ib">${ic('menu')}</button><span class="logo"><svg viewBox="0 0 30 22"><rect width="30" height="22" rx="6" fill="#f03"/><path d="M12 6l8 5-8 5z" fill="#fff"/></svg>ambient</span><div class="srch"><input placeholder="検索"><button class="ib" style="width:64px;border-radius:0 999px 999px 0">${ic('search')}</button></div><button class="ib">${ic('add')}</button><button class="ib">${ic('bell')}</button><button class="ib" id="whGear" title="設定へ" style="font-size:20px">⚙</button>`;
-    $('#winfo').innerHTML=`<h1>${t}</h1>
-<div class="p-ch">${av(m.ch)}<div class="nm"><b>${c}${chk}</b><span class="mut">チャンネル登録者数 ${subs}人</span></div><button class="pill w" data-t="sub">チャンネル登録</button><span class="grow"></span>
-<div class="seg"><button class="pill" data-t="like">${ic('up')}<span>${likes}</span></button><button class="pill dn" data-t="dislike">${ic('up')}</button></div>
-<button class="pill">${ic('share')}共有</button><button class="pill">${ic('save')}保存</button><button class="ib pill dots3" style="padding:0;width:36px;justify-content:center">${ic('more')}</button></div>
-<div class="card"><b>${views}回視聴 ・ 1年前</b><br>動画の説明がここに表示されます。ハッシュタグやリンクなどもこの欄に入ります。<br><b>…もっと見る</b></div>
-<h3 style="font-size:20px;margin:24px 0 0">${cm}件のコメント</h3>
-<div class="add">${av('あなた','')}<div class="l">コメントする...</div></div>
-${CMT.map(x=>`<div class="cm">${av(x[0])}<div><span class="u">@${esc(x[0])}</span> <span class="mut">${(h%11)+1}か月前</span><p>${esc(x[1])}</p></div></div>`).join('')}`;
-    $('#wside').innerHTML=`<div class="chips"><span class="pill w">すべて</span><span class="pill">${c.slice(0,10)}</span><span class="pill">関連動画</span><span class="pill">最近アップロードされた動画</span></div>`+
-      REL.map((_,i)=>{const r=rel(i);return `<div class="rh">${thumb(i)}<div class="tx"><h4>${esc(r[0])}</h4><div class="mut">${esc(r[1])}<br>${r[2]}</div></div></div>`}).join('');
-  }else{
-    $('#wh').innerHTML='';
-    $('#winfo').innerHTML=`<h1>${t}</h1>
+  const first=[NM[h%NM.length],TX[h%TX.length]];
+  $('#winfo').innerHTML=`<h1>${t}</h1>
 <div class="m-meta"><span class="ch">@${c}${chk}</span><span>高評価 ${likes} 件</span><span>${views}回</span><b style="color:#f1f1f1">その他</b></div>
-<div class="m-act">${av(m.ch)}<button class="pill ch" data-t="sub">チャンネル...</button><button class="ib" data-t="like">${ic('up')}</button><button class="ib dn" data-t="dislike">${ic('up')}</button><button class="ib">${ic('share')}</button><button class="ib">${ic('spark')}</button><button class="ib">${ic('more')}</button></div>
-<div class="card"><div class="row2" style="justify-content:space-between"><span><b style="font-size:15px">コメント</b> <span class="mut">${cm}</span></span><span class="cdots"><i></i><i></i><i></i></span></div><div class="row2" style="margin-top:12px;align-items:flex-start">${av(CMT[0][0],'s')}<span>${esc(CMT[0][1])}</span></div></div>`;
-    $('#wside').innerHTML=REL.map((_,i)=>{const r=rel(i);return `<div class="rv">${thumb(i)}<div class="info">${av(r[1])}<div class="tx"><h4>${esc(r[0])}</h4><div class="mut">${esc(r[1])} ・ ${r[2]}</div></div><button class="ib dots3" style="width:28px">${ic('more')}</button></div></div>`}).join('');
-  }
+<div class="m-act">${av(m.ch)}<button class="pill" style="max-width:38%;overflow:hidden;text-overflow:ellipsis;display:block;line-height:36px" data-t="sub">チャンネル...</button><button class="ib" data-t="like" aria-label="高評価">${ic('up')}</button><button class="ib dn" data-t="dislike" aria-label="低評価">${ic('up')}</button><button class="ib" aria-label="共有">${ic('share')}</button><button class="ib" aria-label="AI">${ic('spark')}</button><button class="ib" aria-label="その他">${ic('more')}</button></div>
+<div class="card" data-t="comments" role="button" tabindex="0"><div class="row2" style="justify-content:space-between"><span><b style="font-size:15px">コメント</b> <span class="mut">${cm}</span></span><span class="cdots"><i></i><i></i><i></i></span></div><div class="row2" style="margin-top:12px;align-items:flex-start">${av(first[0],'s')}<span>${esc(first[1])}</span></div></div>`;
+  $('#wside').innerHTML=REL.map((r,i)=>`<div class="rv">${thumb(i)}<div class="info">${av(r[1])}<div class="tx"><h4>${esc(r[0])}</h4><div class="mut">${esc(r[1])} ・ ${(h*(i+3)%900+10)}万 回視聴 ・ ${(i%11)+1}か月前</div></div><button class="ib dots3" style="width:28px" aria-label="メニュー">${ic('more')}</button></div></div>`).join('');
+  $('#shT').innerHTML=`コメント <span class="mut" style="font-weight:400">${cm}</span>`;
+  $('#shAv').innerHTML=av('あなた');
+  $('#shL').innerHTML=Array.from({length:14},(_,i)=>{
+    const n=NM[(i*3+h)%NM.length],x=TX[(i*5+h)%TX.length],lk=(h*(i+2))%900;
+    return `<div class="cm">${av(n)}<div style="flex:1;min-width:0"><span class="u">@${esc(n)}</span> <span class="mut">${(i%11)+1}か月前</span><p>${esc(x)}</p><div class="ca"><button class="ib">${ic('up')}</button><span>${lk}</span><button class="ib dn">${ic('up')}</button><button class="ib" style="width:auto;padding:0 10px;font-size:12px">返信</button></div></div></div>`;
+  }).join('');
 }
 document.addEventListener('click',e=>{
-  if(e.target.closest('#whGear')){exitPlayer();return}
   const b=e.target.closest('[data-t]');if(!b)return;
   const k=b.dataset.t,r=$('#winfo');
-  if(k==='sub'){const on=b.classList.toggle('on');b.classList.toggle('w',!on);b.textContent=bodyC.contains('pc')?(on?'登録済み':'チャンネル登録'):(on?'登録済み':'チャンネル...')}
+  if(k==='comments')openComments();
+  else if(k==='sub'){const on=b.classList.toggle('on');b.textContent=on?'登録済み':'チャンネル...'}
   else if(k==='like'){const on=b.classList.toggle('on');if(on){const d=r.querySelector('[data-t=dislike]');d&&d.classList.remove('on')}}
   else if(k==='dislike'){const on=b.classList.toggle('on');if(on){const l=r.querySelector('[data-t=like]');l&&l.classList.remove('on')}}
 });
-addEventListener('keydown',e=>{if(e.key==='Escape'&&bodyC.contains('player')&&!document.fullscreenElement)exitPlayer()});
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(bodyC.contains('csheet'))closeComments();else if(bodyC.contains('player')&&!document.fullscreenElement)exitPlayer()});
 
 /* ---------- modes ---------- */
 $('#bCinema').onclick=e=>e.currentTarget.classList.toggle('on',document.body.classList.toggle('cinema'));
-$('#bFull').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('#stage').requestFullscreen()}catch(e){}};
+$('#bFull').onclick=()=>{try{const st=$('#stage');if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else(st.requestFullscreen||st.webkitRequestFullscreen).call(st)}catch(e){}};
+if(!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen)){$('#bFull').hidden=true;$('#pFull').hidden=true}
+if(!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia))$('#bCap').hidden=true;
+if(!ENABLE_YT)$('#url').parentElement.hidden=true;
+$('#aboutSample').hidden=!ENABLE_PLAYER_UI;
+const setAbout=on=>document.body.classList.toggle('about-open',on);
+$('#bAbout').onclick=()=>setAbout(true);$('#bAboutX').onclick=()=>setAbout(false);
+$('#about').addEventListener('click',e=>{if(e.target.id==='about')setAbout(false)});
+(()=>{const q=new URLSearchParams(location.search).get('v');if(ENABLE_YT&&q){$('#url').value=q;go()}})();
 
 /* ---------- canvas copy loop ---------- */
 function paint(){
